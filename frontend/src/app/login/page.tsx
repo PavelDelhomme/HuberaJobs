@@ -9,9 +9,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [huberaLoading, setHuberaLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-  const { login, isAuthenticated, user } = useAuth();
+  const { login, isAuthenticated, user, huberaIdDetected, continueWithHuberaId } = useAuth();
   const { actualTheme, toggleTheme } = useTheme();
 
   // ✅ Si déjà connecté, rediriger automatiquement
@@ -82,6 +83,49 @@ export default function LoginPage() {
 
           {/* Formulaire */}
           <form className="px-6 sm:px-8 py-6 sm:py-8 space-y-5 sm:space-y-6" onSubmit={handleLogin}>
+            {/* Hubera ID Quick Login */}
+            {huberaIdDetected?.found && huberaIdDetected.email && (
+              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-2 border-indigo-200 dark:border-indigo-700 rounded-xl sm:rounded-2xl p-4 sm:p-5">
+                <div className="text-center mb-3">
+                  <span className="text-2xl">🔐</span>
+                  <p className="text-sm font-semibold text-indigo-700 dark:text-indigo-300 mt-1">
+                    Compte Hubera ID détecté
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  disabled={huberaLoading}
+                  onClick={async () => {
+                    setHuberaLoading(true);
+                    setError('');
+                    try {
+                      const success = await continueWithHuberaId();
+                      if (!success) {
+                        setError('Connexion Hubera ID impossible. Essayez avec email/mot de passe.');
+                      }
+                    } catch (err: any) {
+                      setError(err.message || 'Erreur Hubera ID');
+                    } finally {
+                      setHuberaLoading(false);
+                    }
+                  }}
+                  className="w-full py-3 sm:py-4 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold text-sm sm:text-base shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform transition-all duration-200 hover:scale-[1.02]"
+                >
+                  {huberaLoading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="animate-spin">⏳</span>
+                      <span>Connexion...</span>
+                    </span>
+                  ) : (
+                    <span>Continuer avec {huberaIdDetected.email}</span>
+                  )}
+                </button>
+                <p className="text-xs text-center text-indigo-600 dark:text-indigo-400 mt-2">
+                  Connexion automatique via Hubera ID (SSO)
+                </p>
+              </div>
+            )}
+
             {error && (
               <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 sm:py-4 rounded-xl flex items-start gap-3 animate-shake">
                 <span className="text-xl sm:text-2xl">❌</span>

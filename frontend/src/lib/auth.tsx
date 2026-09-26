@@ -3,6 +3,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { authService } from './api'
+import {
+  detectHuberaSession,
+  quickLoginWithHuberaId,
+  clearHuberaSession,
+  type HuberaDetectResult,
+} from './huberaId'
 
 interface User {
   id: string
@@ -21,6 +27,9 @@ interface AuthContextType {
   logout: () => void
   isAuthenticated: boolean
   isAdmin: boolean
+  huberaIdDetected: HuberaDetectResult | null
+  checkHuberaId: () => Promise<HuberaDetectResult | null>
+  continueWithHuberaId: () => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -29,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [huberaIdDetected, setHuberaIdDetected] = useState<HuberaDetectResult | null>(null)
   const router = useRouter()
 
   // ✅ Charger le token et profil au démarrage
@@ -95,9 +105,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setUser(null)
     setToken(null)
+    setHuberaIdDetected(null)
     
     // ✅ Supprimer du localStorage ET des cookies
     localStorage.removeItem('token')
+    clearHuberaSession()
     
     // ✅ Supprimer aussi des cookies
     if (typeof window !== 'undefined') {
@@ -107,6 +119,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login')
   }
 
+  const checkHuberaId = async (): Promise<HuberaDetectResult | null> => {
+    if (user) return null
+    try {
+      const detected = await detectHuberaSession()
+      setHuberaIdDetected(detected.found ? detected : null)
+      return detected.found ? detected : null
+    } catch {
+      return null
+    }
+  }
+
+  const continueWithHuberaId = async (): Promise<boolean> => {
+    try {
+      const result = await quickLoginWithHuberaId()
+      if (!result) return false
+
+      const newToken = result.accessToken
+      const newUser: User = {
+        id: result.userId,
+        email: result.email,
+        firstName: result.email.split('@')[0],
+        lastName: '',
+        role: 'USER',
+        isActive: true,
+      }
+
+      setToken(newToken)
+      setUser(newUser)
+      setHuberaIdDetected(null)
+
+      localStorage.setItem('token', newToken)
+      if (typeof window !== 'undefined') {
+        document.cookie = `token=${newToken}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
+      }
+
+      router.push('/backoffice')
+      return true
+    } catch (error) {
+      console.error('[HuberaID] continueWithHuberaId error:', error)
+      return false
+    }
+  }
+
+  // Check for Hubera ID session on mount if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      void checkHuberaId()
+    }
+  }, [loading, user])
+
   const value = {
     user,
     token,
@@ -114,7 +176,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login,
     logout,
     isAuthenticated: !!user && !!token,
-    isAdmin: user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN'
+    isAdmin: user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN',
+    huberaIdDetected,
+    checkHuberaId,
+    continueWithHuberaId,
   }
 
   return (
