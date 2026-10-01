@@ -1,4 +1,4 @@
-package com.example.jobbingtrack_mobile
+package cloud.hubera.jobs
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

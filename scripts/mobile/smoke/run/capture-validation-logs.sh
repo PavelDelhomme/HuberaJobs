@@ -57,7 +57,7 @@ fi
 
 # Logcat mobile (app + Flutter + erreurs réseau)
 if adb -s "$DEVICE" get-state >/dev/null 2>&1; then
-  PKG=com.example.jobbingtrack_mobile
+  PKG=cloud.hubera.jobs
   echo "[capture] logcat $DEVICE (package $PKG)…"
   adb -s "$DEVICE" logcat -d -t 3000 >"$OUT/mobile/logcat-full-tail3000.log" 2>&1 || true
   adb -s "$DEVICE" logcat -d -t 2000 \

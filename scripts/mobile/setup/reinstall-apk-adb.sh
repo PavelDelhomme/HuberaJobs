@@ -14,7 +14,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 # shellcheck source=scripts/mobile/setup/resolve-flutter.sh
 source "$ROOT/scripts/mobile/setup/resolve-flutter.sh"
-PACKAGE="com.example.jobbingtrack_mobile"
+PACKAGE="cloud.hubera.jobs"
 APK="$ROOT/mobile/build/app/outputs/flutter-apk/app-debug.apk"
 APK_LEGACY="$ROOT/mobile/build/app/outputs/apk/debug/app-debug.apk"
 

@@ -854,7 +854,7 @@ export default function MobileEmulatorPage() {
     if (!selectedDevice) return;
     setLoading("restart-app");
     const baseUrl = base().replace(/\/$/, "");
-    const androidPackage = "com.example.jobbingtrack_mobile";
+    const androidPackage = "cloud.hubera.jobs";
     try {
       const res = await fetch(`${baseUrl}/force-restart-app`, {
         method: "POST",
@@ -1837,7 +1837,7 @@ function MobileJourneyPanel({
     }
 
     const baseUrl = controllerUrl.replace(/\/$/, "");
-    const androidPackage = "com.example.jobbingtrack_mobile";
+    const androidPackage = "cloud.hubera.jobs";
     addLog("Fermeture et relance de l'app pour afficher le bon ecran...");
     try {
       const res = await fetch(`${baseUrl}/force-restart-app`, {

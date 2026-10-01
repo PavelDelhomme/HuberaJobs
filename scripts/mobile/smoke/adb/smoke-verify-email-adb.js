@@ -16,7 +16,7 @@ const { resolveVerificationToken } = require('../../email/extract-verification-t
 const { compareEnvDiagnostics } = require('../../lib/resolve-test-email-env');
 const { GATEWAY_URL } = require('../../lib/resolve-admin-credentials');
 
-const PACKAGE = 'com.example.jobbingtrack_mobile';
+const PACKAGE = 'cloud.hubera.jobs';
 
 function adbDeviceArgs(deviceId) {
   return deviceId ? ['-s', deviceId] : [];

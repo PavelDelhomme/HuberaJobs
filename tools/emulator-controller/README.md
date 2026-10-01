@@ -28,7 +28,7 @@ Ou en arrière-plan : `make emulator-controller-bg` (arrêt : `make emulator-con
 | `EMULATOR_CONTROLLER_BASE_PATH` | Préfixe d’URL (ex. `/emulator-api`) quand le service est derrière un reverse proxy |
 | `MOBILE_PROJECT_PATH` | Chemin du projet Flutter mobile (défaut : `../../mobile`) |
 | `ANDROID_HOME` ou `ANDROID_SDK_ROOT` | Racine du SDK Android |
-| `ANDROID_PACKAGE` | Package Android de l’app pour « Installer et lancer » (défaut : com.example.jobbingtrack_mobile) |
+| `ANDROID_PACKAGE` | Package Android de l’app pour « Installer et lancer » (défaut : cloud.hubera.jobs) |
 
 ## Dépannage Build APK
 

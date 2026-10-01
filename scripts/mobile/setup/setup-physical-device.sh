@@ -13,7 +13,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 source "$ROOT/scripts/mobile/setup/resolve-flutter.sh"
 MOBILE_DIR="$ROOT/mobile"
 ADB_WAIT_SEC="${ADB_WAIT_SEC:-120}"
-PACKAGE="com.example.jobbingtrack_mobile"
+PACKAGE="cloud.hubera.jobs"
 SKIP_BUILD="${SKIP_BUILD:-0}"
 LAUNCH_APP="${LAUNCH_APP:-1}"
 

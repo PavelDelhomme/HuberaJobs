@@ -126,7 +126,7 @@ publish_one() {
 install_one() {
   local flavor="$1"
   local apk="$APK_DIR/app-${flavor}-release.apk"
-  local pkg="com.example.jobbingtrack_mobile"
+  local pkg="cloud.hubera.jobs"
   case "$flavor" in
     dev) pkg="${pkg}.dev" ;;
     preprod) pkg="${pkg}.preprod" ;;

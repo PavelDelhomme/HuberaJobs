@@ -29,7 +29,7 @@ async function isShellVisible(adb) {
 }
 
 async function grantSmokePermissions(adb) {
-  const pkg = 'com.example.jobbingtrack_mobile';
+  const pkg = 'cloud.hubera.jobs';
   try {
     await adb.shellCommand(`pm grant ${pkg} android.permission.POST_NOTIFICATIONS`);
   } catch {
@@ -63,7 +63,7 @@ async function dismissPermissionsGate(adb) {
 }
 
 async function clearSecureStorageForSmoke(adb) {
-  const pkg = 'com.example.jobbingtrack_mobile';
+  const pkg = 'cloud.hubera.jobs';
   try {
     await adb.shellCommand(`run-as ${pkg} rm -f shared_prefs/FlutterSecureStorage.xml`);
   } catch {
@@ -196,7 +196,7 @@ async function setInterimModeForSmoke(adb, enabled = true) {
 async function isSmokeAutomation(adb) {
   try {
     const xml = await adb.shellCommand(
-      'run-as com.example.jobbingtrack_mobile cat shared_prefs/FlutterSharedPreferences.xml',
+      'run-as cloud.hubera.jobs cat shared_prefs/FlutterSharedPreferences.xml',
     );
     return xml.includes('flutter.test_automation_skip_biometric" value="true"');
   } catch {
@@ -348,10 +348,10 @@ async function tapLogout(adb) {
 }
 
 async function clearAppDataForSmoke(adb) {
-  await adb.shellCommand('pm clear com.example.jobbingtrack_mobile');
+  await adb.shellCommand('pm clear cloud.hubera.jobs');
   await adb.wait(2000);
   await adb.shellCommand(
-    'monkey -p com.example.jobbingtrack_mobile -c android.intent.category.LAUNCHER 1',
+    'monkey -p cloud.hubera.jobs -c android.intent.category.LAUNCHER 1',
   );
   await adb.wait(5000);
   await dismissBiometricUnlock(adb);
@@ -385,13 +385,13 @@ async function isOnAndroidLauncher(adb) {
 }
 
 async function restartApp(adb) {
-  await adb.shellCommand('am force-stop com.example.jobbingtrack_mobile');
+  await adb.shellCommand('am force-stop cloud.hubera.jobs');
   await adb.wait(ADB_FAST ? 500 : 1500);
   try {
     await adb.returnToApp();
   } catch {
     await adb.shellCommand(
-      'monkey -p com.example.jobbingtrack_mobile -c android.intent.category.LAUNCHER 1',
+      'monkey -p cloud.hubera.jobs -c android.intent.category.LAUNCHER 1',
     );
   }
   await adb.wait(ADB_FAST ? 2500 : 5000);

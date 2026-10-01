@@ -17,7 +17,7 @@ const { resolveVerificationToken, fetchPostgresToken } = require('../../email/ex
 const { resolveWorkingUserCredentials } = require('../../lib/resolve-user-credentials');
 const { GATEWAY_URL } = require('../../lib/resolve-admin-credentials');
 
-const PACKAGE = 'com.example.jobbingtrack_mobile';
+const PACKAGE = 'cloud.hubera.jobs';
 
 const MOBILE_ETAPE1_PASSWORD =
   process.env.MOBILE_ETAPE1_PASSWORD?.trim() || 'Test123!Smoke1';

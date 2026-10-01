@@ -181,7 +181,7 @@ mobile-verify-email: ## Ouvrir deep link verify-email sur appareil (TOKEN=xxx)
 	@echo "📧 Ouverture jobbingtrack://verify-email?token=$(TOKEN)"
 	@adb shell am start -a android.intent.action.VIEW \
 		-d "jobbingtrack://verify-email?token=$(TOKEN)" \
-		-n com.example.jobbingtrack_mobile/.MainActivity
+		-n cloud.hubera.jobs/.MainActivity
 
 # Aide émulateur mobile
 help-emulator: ## Aide : tester l'app mobile en direct depuis le backoffice (émulateur ou téléphone connecté)

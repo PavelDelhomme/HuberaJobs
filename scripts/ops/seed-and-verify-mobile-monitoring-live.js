@@ -106,7 +106,7 @@ async function triggerAppNetworkErrors(email, password) {
 
   adbReverseRestore();
   execSync(
-    'adb shell am start -n com.example.jobbingtrack_mobile/.MainActivity 2>/dev/null || adb shell monkey -p com.example.jobbingtrack_mobile -c android.intent.category.LAUNCHER 1',
+    'adb shell am start -n cloud.hubera.jobs/.MainActivity 2>/dev/null || adb shell monkey -p cloud.hubera.jobs -c android.intent.category.LAUNCHER 1',
     { stdio: 'pipe' },
   );
 
@@ -134,10 +134,10 @@ async function triggerAppNetworkErrors(email, password) {
 
   adbReverseRestore();
   await phone.wait(2000);
-  execSync('adb shell am force-stop com.example.jobbingtrack_mobile', { stdio: 'pipe' });
+  execSync('adb shell am force-stop cloud.hubera.jobs', { stdio: 'pipe' });
   await phone.wait(800);
   execSync(
-    'adb shell am start -n com.example.jobbingtrack_mobile/.MainActivity',
+    'adb shell am start -n cloud.hubera.jobs/.MainActivity',
     { stdio: 'pipe' },
   );
   await phone.wait(8000);

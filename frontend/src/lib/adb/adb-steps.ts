@@ -230,7 +230,7 @@ export async function executeStep(
     // ═══════════════════════════════════════════════════════════════
 
     case "go_to_home_then_launch_app": {
-      const pkg = "com.example.jobbingtrack_mobile";
+      const pkg = "cloud.hubera.jobs";
       await adb.keyevent(3); // KEYCODE_HOME
       await adb.wait(2000);
       await adb.shellCommand(`am start -n ${pkg}/.MainActivity`);
@@ -799,7 +799,7 @@ export async function executeStep(
 
     case "return_to_app": {
       await adb.shellCommand(
-        "am start -n com.example.jobbingtrack_mobile/.MainActivity",
+        "am start -n cloud.hubera.jobs/.MainActivity",
       );
       await adb.wait(2500);
       return "Retour app JobbingTrack";

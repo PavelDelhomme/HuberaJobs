@@ -31,7 +31,7 @@ function boundsCenter(bounds) {
 
 async function isInterimEnabled(phone) {
   const xml = await phone.shellCommand(
-    'run-as com.example.jobbingtrack_mobile cat shared_prefs/FlutterSharedPreferences.xml',
+    'run-as cloud.hubera.jobs cat shared_prefs/FlutterSharedPreferences.xml',
   );
   return /interim_mode_enabled[^>]*value="true"/i.test(xml);
 }

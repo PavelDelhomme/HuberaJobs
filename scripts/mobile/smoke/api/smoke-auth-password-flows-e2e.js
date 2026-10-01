@@ -17,7 +17,7 @@ const {
 const { resolveVerificationToken } = require('../../email/extract-verification-token');
 const { resolveResetToken } = require('./extract-reset-token');
 
-const PACKAGE = 'com.example.jobbingtrack_mobile';
+const PACKAGE = 'cloud.hubera.jobs';
 const skipAdb = process.argv.includes('--skip-adb');
 
 const CANDIDATE_EMAILS = [

@@ -10,7 +10,7 @@ const { resolveWorkingUserCredentials } = require('../../lib/resolve-user-creden
 async function readTelemetryPending(phone) {
   try {
     const out = await phone.shellCommand(
-      'run-as com.example.jobbingtrack_mobile wc -l app_flutter/analytics_telemetry_queue.jsonl 2>/dev/null || echo 0',
+      'run-as cloud.hubera.jobs wc -l app_flutter/analytics_telemetry_queue.jsonl 2>/dev/null || echo 0',
     );
     const n = parseInt(String(out).trim().split(/\s/)[0], 10);
     return Number.isFinite(n) ? n : 0;

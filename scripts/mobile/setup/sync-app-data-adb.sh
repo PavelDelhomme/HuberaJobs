@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Copie les données locales JobbingTrack (session, prefs) d'un appareil ADB vers un autre.
-# Ce n'est PAS un clone complet Samsung One UI — uniquement l'app com.example.jobbingtrack_mobile.
+# Ce n'est PAS un clone complet Samsung One UI — uniquement l'app cloud.hubera.jobs.
 #
 # Prérequis : même APK debug (même signature) sur source et cible ; app installée des deux côtés.
 #
@@ -10,7 +10,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-PACKAGE="${ANDROID_PACKAGE:-com.example.jobbingtrack_mobile}"
+PACKAGE="${ANDROID_PACKAGE:-cloud.hubera.jobs}"
 DATA_DIR="/data/data/$PACKAGE"
 ARCHIVE="${TMPDIR:-/tmp}/jobbingtrack-app-data-$$.tar"
 COPY_LOCALE=0

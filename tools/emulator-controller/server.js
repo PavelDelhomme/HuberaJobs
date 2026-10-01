@@ -21,7 +21,7 @@ if (!ANDROID_HOME && process.env.HOME) {
   const p = path.join(process.env.HOME, 'Android', 'Sdk');
   if (fs.existsSync(p)) ANDROID_HOME = p;
 }
-const ANDROID_PACKAGE = process.env.ANDROID_PACKAGE || 'com.example.jobbingtrack_mobile';
+const ANDROID_PACKAGE = process.env.ANDROID_PACKAGE || 'cloud.hubera.jobs';
 
 /** Volume Flutter/repo hôte : git refuse le build sans safe.directory (dubious ownership). */
 function ensureGitSafeDirectories() {

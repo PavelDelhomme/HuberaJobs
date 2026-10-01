@@ -400,7 +400,7 @@ class AdbClient {
   async setFlutterPrefBool(key, value) {
     const prefsPath = 'shared_prefs/FlutterSharedPreferences.xml';
     const fullKey = key.startsWith('flutter.') ? key : `flutter.${key}`;
-    const pkg = 'com.example.jobbingtrack_mobile';
+    const pkg = 'cloud.hubera.jobs';
     let xml = '';
     try {
       xml = await this.shellCommand(`run-as ${pkg} cat ${prefsPath}`);
@@ -460,7 +460,7 @@ class AdbClient {
     }
   }
 
-  async returnToApp(packageName = 'com.example.jobbingtrack_mobile') {
+  async returnToApp(packageName = 'cloud.hubera.jobs') {
     try {
       return await this.shellCommand(`am start -n ${packageName}/.MainActivity`);
     } catch {
