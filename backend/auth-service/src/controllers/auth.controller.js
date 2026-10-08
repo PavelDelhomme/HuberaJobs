@@ -1994,9 +1994,79 @@ const resendVerificationEmail = async (req, res, next) => {
   }
 };
 
+const HUBERA_ID_VALIDATE_URLS = [
+  'https://id.hubera.cloud/auth/validate',
+  'https://api.cloudity.delhomme.ovh/auth/validate',
+  'https://mail.hubera.cloud/auth/validate',
+];
+
+const loginHuberaSso = async (req, res, next) => {
+  try {
+    const token = String(req.body?.access_token || req.body?.accessToken || '').trim();
+    if (!token) {
+      return res.status(400).json({ success: false, error: 'token requis' });
+    }
+    let email = '';
+    for (const url of HUBERA_ID_VALIDATE_URLS) {
+      try {
+        const r = await axios.get(url, {
+          headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+          timeout: 8000,
+          validateStatus: () => true,
+        });
+        if (r.status < 200 || r.status >= 300) continue;
+        email = String(r.data?.email || r.data?.user?.email || '')
+          .trim()
+          .toLowerCase();
+        if (email) break;
+      } catch (_) {
+        /* hôte suivant */
+      }
+    }
+    if (!email) {
+      return res.status(401).json({ success: false, error: 'Jeton Hubera ID invalide ou expiré' });
+    }
+    const user = await findUserByLoginEmail(email);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Pas de compte Jobs pour cet e-mail — connexion mot de passe une fois.',
+      });
+    }
+    const jwtToken = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role || 'USER' },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    const { password: _, resetToken, resetTokenExpiry, ...userWithoutPassword } = user;
+    res.cookie('token', jwtToken, {
+      httpOnly: false,
+      secure: false,
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    });
+    res.json({
+      success: true,
+      message: 'Connexion SSO Hubera ID',
+      user: userWithoutPassword,
+      token: jwtToken,
+      refreshToken: jwt.sign(
+        { userId: user.id, type: 'refresh' },
+        process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+      ),
+    });
+  } catch (error) {
+    logger.error('Erreur SSO Hubera ID:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
+  loginHuberaSso,
   verifyPassword,
   getProfile,
   refreshToken,

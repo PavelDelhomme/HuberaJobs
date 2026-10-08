@@ -482,6 +482,25 @@ class ApiService {
     return autoDetectApi();
   }
 
+  static Future<Map<String, dynamic>> loginWithHuberaSso(String accessToken) async {
+    final ready = await prepareForLogin();
+    if (!ready) {
+      throw Exception('API injoignable ($baseUrl) pour le SSO Hubera ID.');
+    }
+    final response = await _post(
+      '/api/v1/auth/login/hubera-sso',
+      headers: _jsonHeaders(),
+      body: jsonEncode({'access_token': accessToken}),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    }
+    final body = response.body.isNotEmpty ? jsonDecode(response.body) : {};
+    throw Exception(
+      body['message'] ?? body['error'] ?? 'SSO Hubera ID refusé (${response.statusCode})',
+    );
+  }
+
   static Future<Map<String, dynamic>> login(String email, String password) async {
     final ready = await prepareForLogin();
     if (!ready) {

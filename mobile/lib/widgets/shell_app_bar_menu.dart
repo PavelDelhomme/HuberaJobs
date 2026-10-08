@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:jobbingtrack_mobile/navigation/shell_navigation.dart';
+import 'package:jobbingtrack_mobile/providers/auth_provider.dart';
 import 'package:jobbingtrack_mobile/providers/notification_provider.dart';
 import 'package:jobbingtrack_mobile/services/global_search.dart';
 import 'package:jobbingtrack_mobile/utils/auth_logout.dart';
@@ -95,10 +97,24 @@ class ShellAppBarActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final email = context.watch<AuthProvider>().user?.email;
+    final letter = (email != null && email.trim().isNotEmpty)
+        ? email.trim()[0].toUpperCase()
+        : 'H';
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         ...leadingActions,
+        IconButton(
+          tooltip: 'Compte',
+          onPressed: () => ShellNavigation.navigateFromDrawer(context, '/profile'),
+          icon: CircleAvatar(
+            radius: 14,
+            backgroundColor: const Color(0xFF0E4D5C).withValues(alpha: 0.15),
+            foregroundColor: const Color(0xFF0E4D5C),
+            child: Text(letter, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+          ),
+        ),
         const ShellAppBarMenu(),
       ],
     );

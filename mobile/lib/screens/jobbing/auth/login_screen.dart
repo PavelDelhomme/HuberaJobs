@@ -12,6 +12,7 @@ import 'package:jobbingtrack_mobile/services/biometric_credential_store.dart';
 import 'package:jobbingtrack_mobile/config/debug_test_accounts.dart';
 import 'package:jobbingtrack_mobile/utils/post_auth_navigation.dart';
 import 'package:jobbingtrack_mobile/services/app_version_info.dart';
+import 'package:jobbingtrack_mobile/services/hubera_id_sso.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -31,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _savedAccountEmail;
   bool _showFullLoginForm = false;
   String? _appVersionLabel;
+  List<HuberaIdDeviceAccount> _huberaAccounts = const [];
 
   @override
   void initState() {
@@ -66,6 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
           _emailController.text = _savedAccountEmail!;
         }
       });
+      final hubera = await HuberaIdSso.listAccounts();
+      if (mounted && hubera.isNotEmpty) {
+        setState(() => _huberaAccounts = hubera);
+      }
       if (!skipBioTest &&
           _savedAccountEmail != null &&
           supported &&
@@ -242,6 +248,28 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
+  Future<void> _continueWithHubera(HuberaIdDeviceAccount acc) async {
+    setState(() => _isLoading = true);
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      if (acc.accessToken.isNotEmpty) {
+        await authProvider.loginWithHuberaSso(acc.accessToken, keepLoggedIn: _keepLoggedIn);
+        unawaited(MobileAnalyticsService.instance.initialize(authToken: authProvider.token));
+        if (mounted) {
+          await _navigateAfterLogin(biometricEnabled: false);
+        }
+        return;
+      }
+      _emailController.text = acc.email;
+      _showSnackBar('Compte Hubera : entrez le mot de passe Jobs une fois.');
+    } catch (e) {
+      _emailController.text = acc.email;
+      _showSnackBar('SSO : ${e.toString().replaceAll('Exception: ', '')}');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _login() async {
     if (_emailController.text.isEmpty) {
       _showSnackBar('Veuillez saisir votre email');
@@ -378,6 +406,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 const SizedBox(height: 48),
+
+                if (_huberaAccounts.isNotEmpty) ...[
+                  for (final acc in _huberaAccounts)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: OutlinedButton(
+                          onPressed: _isLoading ? null : () => _continueWithHubera(acc),
+                          child: Text('Continuer avec ${acc.email}'),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                  Text('Ou connexion manuelle', style: TextStyle(color: Colors.grey.shade600)),
+                  const SizedBox(height: 16),
+                ],
 
                 if (_savedAccountEmail != null && _biometricAvailable && !_showFullLoginForm) ...[
                   Container(

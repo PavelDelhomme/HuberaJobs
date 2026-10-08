@@ -30,6 +30,8 @@ router.post('/login', [
   body('password').notEmpty()
 ], authController.login);
 
+router.post('/login/hubera-sso', authController.loginHuberaSso);
+
 router.post('/refresh', authController.refreshToken);
 router.post('/logout', authController.logout);
 

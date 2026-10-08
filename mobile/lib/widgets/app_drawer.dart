@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:jobbingtrack_mobile/providers/auth_provider.dart';
 import 'package:jobbingtrack_mobile/navigation/shell_navigation.dart';
 import 'package:jobbingtrack_mobile/services/api_config_store.dart';
@@ -219,6 +220,8 @@ class _AppDrawerState extends State<AppDrawer> {
             ),
 
           const Divider(),
+          _HuberaSuiteGrid(),
+          const Divider(),
 
           // Paramètres et profil
           _buildDrawerSection(
@@ -347,5 +350,54 @@ class _DrawerItem {
     required this.title,
     required this.route,
   });
+}
+
+class _HuberaSuiteGrid extends StatelessWidget {
+  static const _apps = <(String, String, IconData)>[
+    ('Music', 'https://music.hubera.cloud', Icons.music_note_outlined),
+    ('Maps', 'https://maps.hubera.cloud', Icons.map_outlined),
+    ('Fuel', 'https://fuel.hubera.cloud', Icons.directions_car_outlined),
+    ('Docs', 'https://docs.hubera.cloud', Icons.menu_book_outlined),
+    ('Agenda', 'https://calendar.hubera.cloud', Icons.calendar_month_outlined),
+    ('Mail', 'https://mail.hubera.cloud', Icons.mail_outline),
+    ('Pass', 'https://pass.hubera.cloud', Icons.lock_outline),
+    ('ID', 'https://id.hubera.cloud', Icons.person_outline),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Apps Hubera', style: Theme.of(context).textTheme.labelLarge),
+          const SizedBox(height: 8),
+          GridView.count(
+            crossAxisCount: 4,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 0.85,
+            children: [
+              for (final app in _apps)
+                InkWell(
+                  onTap: () => launchUrl(Uri.parse(app.$2), mode: LaunchMode.externalApplication),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(app.$3, color: const Color(0xFF0E4D5C), size: 22),
+                      const SizedBox(height: 4),
+                      Text(app.$1, style: Theme.of(context).textTheme.labelSmall, textAlign: TextAlign.center),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 

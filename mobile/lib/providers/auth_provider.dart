@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:jobbingtrack_mobile/services/admin_api_service.dart';
 import 'package:jobbingtrack_mobile/services/api_config_store.dart';
 import 'package:jobbingtrack_mobile/services/api_service.dart';
+import 'package:jobbingtrack_mobile/services/hubera_id_sso.dart';
 import 'package:jobbingtrack_mobile/services/biometric_credential_store.dart';
 import 'package:jobbingtrack_mobile/services/crash_reporter.dart';
 import 'package:jobbingtrack_mobile/services/mobile_analytics_service.dart';
@@ -268,6 +269,44 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> loginWithHuberaSso(
+    String accessToken, {
+    bool keepLoggedIn = true,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await ApiService.loginWithHuberaSso(accessToken);
+      if (response['success'] != true) {
+        throw Exception(response['message'] ?? 'SSO Hubera ID refusé');
+      }
+      _clearImpersonationState();
+      _token = response['token'];
+      _refreshToken = response['refreshToken'] as String?;
+      _user = User.fromJson(response['user']);
+      _tokenStale = false;
+      CrashReporter.setToken(_token);
+      unawaited(ApiConfigStore.ensureAnalyticsConsentEnabled());
+      unawaited(MobileAnalyticsService.instance.initialize(authToken: _token));
+      unawaited(ApiConfigStore.saveKeepLoggedIn(keepLoggedIn));
+      if (keepLoggedIn) unawaited(_persistSession());
+      unawaited(
+        HuberaIdSso.saveSession(
+          email: _user?.email ?? '',
+          accessToken: _token ?? '',
+          refreshToken: _refreshToken ?? '',
+        ),
+      );
+      unawaited(PushNotificationService.instance.registerAfterLogin(authToken: _token));
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   Future<void> login(
     String email,
     String password, {
@@ -311,6 +350,13 @@ class AuthProvider with ChangeNotifier {
         CrashReporter.trackAction('login:${_user?.email ?? "unknown"}');
         unawaited(CrashReporter.flushPendingReports());
         unawaited(PushNotificationService.instance.registerAfterLogin(authToken: _token));
+        unawaited(
+          HuberaIdSso.saveSession(
+            email: _user?.email ?? email,
+            accessToken: _token ?? '',
+            refreshToken: _refreshToken ?? '',
+          ),
+        );
         _isLoading = false;
         notifyListeners();
       } else {
