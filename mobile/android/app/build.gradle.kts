@@ -68,6 +68,7 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    implementation(project(":hubera-id-sso"))
 }
 
 // Contourne compress*Assets / Zip « already contains entry … kernel_blob.bin »
