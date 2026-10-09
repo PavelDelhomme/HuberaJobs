@@ -2000,6 +2000,58 @@ const HUBERA_ID_VALIDATE_URLS = [
   'https://mail.hubera.cloud/auth/validate',
 ];
 
+function huberaOwnerEmails() {
+  const out = new Set();
+  for (const key of ['ADMIN_EMAIL', 'HUBERA_ID_OWNER', 'HUBERA_ADMIN_EMAIL']) {
+    const v = String(process.env[key] || '').trim().toLowerCase();
+    if (v) out.add(v);
+  }
+  out.add('paul@delhomme.ovh');
+  return out;
+}
+
+async function resolveJobsUserFromHuberaEmail(email) {
+  const owners = huberaOwnerEmails();
+  let user = await findUserByLoginEmail(email);
+  const adminEmail = String(process.env.ADMIN_EMAIL || '').trim().toLowerCase();
+  if (!user && owners.has(email) && adminEmail && adminEmail !== email) {
+    const admin = await findUserByLoginEmail(adminEmail);
+    if (admin) {
+      try {
+        user = await prisma.user.update({
+          where: { id: admin.id },
+          data: { email, role: 'SUPER_ADMIN', emailVerified: true, isActive: true },
+        });
+        logger.info(`Compte Jobs admin ${adminEmail} → ${email} (SSO Hubera ID)`);
+      } catch (err) {
+        logger.warn(`Impossible de renommer l’admin Jobs: ${err.message}`);
+        user = admin;
+      }
+    }
+  }
+  if (!user) {
+    const role = owners.has(email) ? 'SUPER_ADMIN' : 'USER';
+    user = await prisma.user.create({
+      data: {
+        email,
+        password: await bcrypt.hash(crypto.randomBytes(24).toString('hex'), 10),
+        firstName: owners.has(email) ? 'Paul' : email.split('@')[0] || 'Hubera',
+        lastName: owners.has(email) ? 'Delhomme' : 'ID',
+        role,
+        isActive: true,
+        emailVerified: true,
+      },
+    });
+    logger.info(`Compte Jobs créé via SSO Hubera ID: ${email} (${role})`);
+  } else if (owners.has(email) && user.role !== 'SUPER_ADMIN') {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: { role: 'SUPER_ADMIN', emailVerified: true, isActive: true },
+    });
+  }
+  return user;
+}
+
 const loginHuberaSso = async (req, res, next) => {
   try {
     const token = String(req.body?.access_token || req.body?.accessToken || '').trim();
@@ -2026,7 +2078,7 @@ const loginHuberaSso = async (req, res, next) => {
     if (!email) {
       return res.status(401).json({ success: false, error: 'Jeton Hubera ID invalide ou expiré' });
     }
-    const user = await findUserByLoginEmail(email);
+    const user = await resolveJobsUserFromHuberaEmail(email);
     if (!user) {
       return res.status(401).json({
         success: false,
