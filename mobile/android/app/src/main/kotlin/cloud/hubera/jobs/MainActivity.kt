@@ -16,6 +16,10 @@ class MainActivity : FlutterFragmentActivity() {
                         val rows = HuberaIdAccounts.listAccounts(this).map { it.toMap() }
                         result.success(rows)
                     }
+                    "moveToBackground" -> {
+                        moveTaskToBack(true)
+                        result.success(null)
+                    }
                     "saveSession" -> {
                         val email = call.argument<String>("email").orEmpty()
                         HuberaIdAccounts.saveSession(

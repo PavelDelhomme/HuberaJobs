@@ -130,7 +130,21 @@ Future<bool> showMobileUpdateDialog(
                   ],
                   if (installing) ...[
                     const SizedBox(height: 16),
-                    LinearProgressIndicator(value: progress <= 0 ? null : progress),
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: LinearProgressIndicator(
+                            value: progress <= 0 ? null : progress,
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       progress >= 1
@@ -163,7 +177,7 @@ Future<bool> showMobileUpdateDialog(
                 ),
               FilledButton(
                 onPressed: installing ? null : install,
-                child: Text(Platform.isAndroid ? 'Installer maintenant' : 'Ouvrir l’App Store'),
+                child: Text(Platform.isAndroid ? 'Télécharger' : 'Ouvrir l’App Store'),
               ),
             ],
           );

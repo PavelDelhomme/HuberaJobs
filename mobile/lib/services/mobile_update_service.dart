@@ -219,6 +219,21 @@ class MobileUpdateService {
       );
     }
 
+    final dir = await getTemporaryDirectory();
+    final cached = File('${dir.path}/ota/jobbingtrack-update.apk');
+    if (await cached.exists() && await cached.length() >= 5 * 1024 * 1024) {
+      onProgress?.call(1.0);
+      final result = await OpenFilex.open(
+        cached.path,
+        type: 'application/vnd.android.package-archive',
+      );
+      if (result.type != ResultType.done) {
+        final msg = result.message.trim();
+        throw Exception(msg.isEmpty ? 'Installation APK refusée' : msg);
+      }
+      return;
+    }
+
     final resolvedUrl = resolveAndroidDownloadUrl(downloadUrl);
     onProgress?.call(0.02);
 
@@ -248,10 +263,10 @@ class MobileUpdateService {
       );
     }
 
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/jobbingtrack-update.apk');
-    await file.writeAsBytes(bytes, flush: true);
+    await cached.parent.create(recursive: true);
+    await cached.writeAsBytes(bytes, flush: true);
     onProgress?.call(1.0);
+    final file = cached;
 
     final result = await OpenFilex.open(
       file.path,

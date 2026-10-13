@@ -202,7 +202,12 @@ class _MainShellScreenState extends State<MainShellScreen> {
       );
       return;
     }
-    SystemNavigator.pop();
+    const channel = MethodChannel('hubera_id_sso');
+    try {
+      await channel.invokeMethod<void>('moveToBackground');
+    } catch (_) {
+      // Pas de finish() de l’activité racine.
+    }
   }
 
   void _reselectApplicationsTab() {
