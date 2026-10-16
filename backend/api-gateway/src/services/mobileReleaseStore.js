@@ -492,6 +492,20 @@ function updateChannelPolicy(channel, platform, patch) {
   return current;
 }
 
+function channelForFilename(filename) {
+  const name = path.basename(String(filename || ''));
+  if (!name) return null;
+  const file = configPath();
+  if (!fs.existsSync(file)) return null;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const hit = (parsed.releases || []).find((r) => r && r.filename === name);
+    return hit ? String(hit.channel || '') : null;
+  } catch {
+    return null;
+  }
+}
+
 function getPublicReleaseInfo(platformRaw, channelRaw) {
   const platform = String(platformRaw || 'android').toLowerCase();
   const channel = String(channelRaw || 'production').toLowerCase();
@@ -628,6 +642,7 @@ module.exports = {
   promoteRelease,
   updateChannelPolicy,
   getPublicReleaseInfo,
+  channelForFilename,
   buildDownloadUrlForFilename,
   resolvePublicApiBaseForMobileDownload,
   enrichReleaseForAdmin,

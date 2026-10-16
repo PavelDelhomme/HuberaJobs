@@ -1,12 +1,29 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const jwt = require('jsonwebtoken');
 const { getMobileReleaseInfo } = require('../lib/mobileReleaseConfig');
+const { betaChannelBlocked } = require('../lib/betaChannel');
+const { channelForFilename } = require('../services/mobileReleaseStore');
 
 const router = express.Router();
 
+function optionalJwtEmail(req) {
+  const header = String(req.headers.authorization || '');
+  if (!header.startsWith('Bearer ') || !process.env.JWT_SECRET) return '';
+  try {
+    const decoded = jwt.verify(header.slice(7), process.env.JWT_SECRET);
+    return String(decoded.email || '');
+  } catch {
+    return '';
+  }
+}
+
 router.get('/latest', (req, res) => {
   const channel = req.query.channel || 'production';
+  if (betaChannelBlocked(channel, optionalJwtEmail(req), process.env.HUBERA_BETA_EMAILS || '')) {
+    return res.status(404).json({ success: false, error: 'APK non publiée' });
+  }
   const info = getMobileReleaseInfo(req.query.platform, channel);
   if (!info) {
     return res.status(400).json({
@@ -29,6 +46,9 @@ router.get('/download/:filename', (req, res) => {
   const safeName = path.basename(String(req.params.filename || ''));
   if (!safeName || !safeName.toLowerCase().endsWith('.apk')) {
     return res.status(400).json({ success: false, error: 'Nom de fichier APK invalide' });
+  }
+  if (betaChannelBlocked(channelForFilename(safeName), optionalJwtEmail(req), process.env.HUBERA_BETA_EMAILS || '')) {
+    return res.status(404).json({ success: false, error: 'APK non publiée' });
   }
 
   const filePath = path.join(releasesDir, safeName);
