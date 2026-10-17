@@ -220,8 +220,6 @@ class _AppDrawerState extends State<AppDrawer> {
             ),
 
           const Divider(),
-          _HuberaSuiteGrid(),
-          const Divider(),
 
           // Paramètres et profil
           _buildDrawerSection(

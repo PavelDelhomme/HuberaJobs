@@ -7,6 +7,7 @@ import 'package:jobbingtrack_mobile/services/http_correlation.dart';
 import 'package:jobbingtrack_mobile/services/offline_business_sync_queue.dart';
 import 'package:jobbingtrack_mobile/services/offline_mutation_helper.dart';
 import 'package:jobbingtrack_mobile/services/api_config_store.dart';
+import 'package:jobbingtrack_mobile/services/jobs_api_base.dart';
 import 'package:jobbingtrack_mobile/models/user.dart';
 import 'package:jobbingtrack_mobile/models/application.dart';
 import 'package:jobbingtrack_mobile/models/company.dart';
@@ -84,9 +85,12 @@ class ApiService {
   /// URL de l'API. Par défaut en local : 127.0.0.1 (adb reverse) ou 10.0.2.2 (émulateur).
   static String get baseUrl {
     const fromEnv = String.fromEnvironment('API_BASE_URL', defaultValue: '');
-    if (fromEnv.isNotEmpty) return fromEnv;
-    if (_resolvedBaseUrl != null) return _resolvedBaseUrl!;
-    return 'http://127.0.0.1:$_apiPort';
+    return resolveJobsApiBase(
+      release: kReleaseMode,
+      fromEnv: fromEnv,
+      saved: _resolvedBaseUrl,
+      loopbackFallback: 'http://127.0.0.1:$_apiPort',
+    );
   }
 
   static set baseUrl(String url) {
@@ -140,6 +144,17 @@ class ApiService {
     if (fromEnv.isNotEmpty) {
       _resolvedBaseUrl = fromEnv;
       debugPrint('[API] URL prod (dart-define): $fromEnv');
+      return true;
+    }
+
+    if (kReleaseMode) {
+      final saved = await ApiConfigStore.loadBaseUrl();
+      if (saved != null && !jobsApiIsLoopback(saved) && await _probeHealth(saved)) {
+        return true;
+      }
+      if (await _probeHealth(jobsProdApiBase)) return true;
+      _resolvedBaseUrl = jobsProdApiBase;
+      debugPrint('[API] Release sans probe, URL prod: $jobsProdApiBase');
       return true;
     }
 
