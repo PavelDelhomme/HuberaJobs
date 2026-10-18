@@ -1,0 +1,31 @@
+{
+  "generated": "2026-10-18T17:50:00Z",
+  "slug": "jobs",
+  "app": "hubera_jobs",
+  "name": "Hubera Jobs",
+  "version": "1.0.71",
+  "versionCode": 71,
+  "package": "cloud.hubera.jobs",
+  "signingCertSha256": "3cf6c5321da1517e79940c9e25514a639b2c449e3eff7df7476876cbf6f4c11f",
+  "min_supported": "0.0.0",
+  "apk": "https://jobs.hubera.cloud/api/v1/mobile/releases/download/jobbingtrack-1.0.71-71-cloud.apk",
+  "apk_url": "https://jobs.hubera.cloud/api/v1/mobile/releases/download/jobbingtrack-1.0.71-71-cloud.apk",
+  "install": "https://jobs.hubera.cloud/install",
+  "sha256": "be82c94e0f7e63f26d17b5d7bab3219158fc3b1a0fab5a1e54e205b19c14c34d",
+  "mandatory": false,
+  "forceUpdate": false,
+  "apkAvailable": true,
+  "notes": "1.0.71 : le canal de production est https://jobs.hubera.cloud. Le téléphone ne démarre plus en interrogeant 127.0.0.1. Mise à jour proposée, jamais forcée.",
+  "published_at": "2026-10-18T17:50:00Z",
+  "legacy_stack": "jobbingtrack-prod",
+  "canonical": {
+    "package": "cloud.hubera.jobs",
+    "version": "1.0.71",
+    "versionCode": 71,
+    "apk": "https://jobs.hubera.cloud/api/v1/mobile/releases/download/jobbingtrack-1.0.71-71-cloud.apk",
+    "apk_url": "https://jobs.hubera.cloud/api/v1/mobile/releases/download/jobbingtrack-1.0.71-71-cloud.apk",
+    "sha256": "be82c94e0f7e63f26d17b5d7bab3219158fc3b1a0fab5a1e54e205b19c14c34d",
+    "signingCertSha256": "3cf6c5321da1517e79940c9e25514a639b2c449e3eff7df7476876cbf6f4c11f",
+    "notes": "Paquet canonique cloud.hubera.jobs. Canal https://jobs.hubera.cloud."
+  }
+}

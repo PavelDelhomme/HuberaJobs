@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:jobbingtrack_mobile/providers/auth_provider.dart';
 import 'package:jobbingtrack_mobile/services/api_service.dart';
+import 'package:jobbingtrack_mobile/services/jobs_api_base.dart';
 import 'package:jobbingtrack_mobile/services/mobile_analytics_service.dart';
 import 'package:jobbingtrack_mobile/services/api_config_store.dart';
 import 'package:jobbingtrack_mobile/services/biometric_auth_service.dart';
@@ -13,6 +14,13 @@ import 'package:jobbingtrack_mobile/config/debug_test_accounts.dart';
 import 'package:jobbingtrack_mobile/utils/post_auth_navigation.dart';
 import 'package:jobbingtrack_mobile/services/app_version_info.dart';
 import 'package:jobbingtrack_mobile/services/hubera_id_sso.dart';
+
+bool _prodHostWithoutPort(String host) {
+  final h = host.trim().toLowerCase();
+  if (h.isEmpty || h.contains('/') || h.contains(':')) return false;
+  if (RegExp(r'^\d{1,3}(\.\d{1,3}){3}$').hasMatch(h)) return false;
+  return h.contains('.');
+}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -324,8 +332,8 @@ class _LoginScreenState extends State<LoginScreen> {
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
-            labelText: 'Hôte (ex: 192.168.1.42 ou 127.0.0.1)',
-            hintText: '127.0.0.1',
+            labelText: 'Hôte (ex: jobs.hubera.cloud)',
+            hintText: 'jobs.hubera.cloud',
           ),
           keyboardType: TextInputType.url,
           autofocus: true,
@@ -339,13 +347,21 @@ class _LoginScreenState extends State<LoginScreen> {
             onPressed: () {
               final host = controller.text.trim();
               if (host.isNotEmpty) {
-                final next = host.contains(':')
-                    ? (host.startsWith('http') ? host : 'http://$host')
-                    : 'http://$host:${ApiService.defaultApiPort}';
-                ApiService.baseUrl = next;
+                final next = host.contains('://')
+                    ? host
+                    : host.contains(':')
+                        ? 'http://$host'
+                        : _prodHostWithoutPort(host)
+                            ? 'https://$host'
+                            : 'http://$host:${ApiService.defaultApiPort}';
+                if (kReleaseMode && jobsApiIsLoopback(next)) {
+                  ApiService.baseUrl = jobsProdApiBase;
+                } else {
+                  ApiService.baseUrl = next;
+                }
                 Navigator.of(ctx).pop();
                 setState(() {});
-                _showSnackBar('API: $next');
+                _showSnackBar('API: ${ApiService.baseUrl}');
               }
             },
             child: const Text('Appliquer'),

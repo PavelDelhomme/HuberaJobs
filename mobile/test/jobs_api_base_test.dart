@@ -26,4 +26,16 @@ void main() {
       'https://api.jobbingtrack.com',
     );
   });
+
+  test('un dart-define loopback est ignoré en release', () {
+    expect(
+      resolveJobsApiBase(
+        release: true,
+        fromEnv: 'http://127.0.0.1:5002',
+        saved: 'http://127.0.0.1:5002',
+        loopbackFallback: 'http://127.0.0.1:5002',
+      ),
+      'https://jobs.hubera.cloud',
+    );
+  });
 }

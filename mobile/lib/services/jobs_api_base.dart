@@ -16,7 +16,7 @@ String resolveJobsApiBase({
   required String loopbackFallback,
 }) {
   final env = fromEnv.trim();
-  if (env.isNotEmpty) return env;
+  if (env.isNotEmpty && !(release && jobsApiIsLoopback(env))) return env;
   final kept = saved?.trim() ?? '';
   if (release) {
     if (kept.isNotEmpty && !jobsApiIsLoopback(kept)) return kept;

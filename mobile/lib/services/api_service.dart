@@ -89,7 +89,7 @@ class ApiService {
       release: kReleaseMode,
       fromEnv: fromEnv,
       saved: _resolvedBaseUrl,
-      loopbackFallback: 'http://127.0.0.1:$_apiPort',
+      loopbackFallback: kReleaseMode ? jobsProdApiBase : 'http://127.0.0.1:$_apiPort',
     );
   }
 
@@ -141,7 +141,7 @@ class ApiService {
   /// Si aucune ne répond, on passe quand même à l'écran de connexion (pas de blocage).
   static Future<bool> autoDetectApi() async {
     const fromEnv = String.fromEnvironment('API_BASE_URL', defaultValue: '');
-    if (fromEnv.isNotEmpty) {
+    if (fromEnv.isNotEmpty && !(kReleaseMode && jobsApiIsLoopback(fromEnv))) {
       _resolvedBaseUrl = fromEnv;
       debugPrint('[API] URL prod (dart-define): $fromEnv');
       return true;

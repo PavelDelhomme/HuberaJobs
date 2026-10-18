@@ -182,7 +182,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
     _promptBackgroundOnDoubleBack();
   }
 
-  void _promptBackgroundOnDoubleBack() {
+  Future<void> _promptBackgroundOnDoubleBack() async {
     final now = DateTime.now();
     if (_lastBackToBackgroundPrompt == null ||
         now.difference(_lastBackToBackgroundPrompt!) > const Duration(seconds: 2)) {
