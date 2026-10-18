@@ -15,7 +15,7 @@
   "mandatory": false,
   "forceUpdate": false,
   "apkAvailable": true,
-  "notes": "1.0.71 : le canal de production est https://jobs.hubera.cloud. Le téléphone ne démarre plus en interrogeant 127.0.0.1. Mise à jour proposée, jamais forcée.",
+  "notes": "1.0.71 : le canal de production est https://jobs.hubera.cloud. Le demarrage interroge la production. Mise a jour proposee, jamais forcee.",
   "published_at": "2026-10-18T17:50:00Z",
   "legacy_stack": "jobbingtrack-prod",
   "canonical": {
