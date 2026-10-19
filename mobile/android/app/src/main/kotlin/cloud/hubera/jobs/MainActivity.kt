@@ -20,15 +20,15 @@ class MainActivity : FlutterFragmentActivity() {
                         moveTaskToBack(true)
                         result.success(null)
                     }
-                    "saveSession" -> {
+                    "freshAccount" -> {
                         val email = call.argument<String>("email").orEmpty()
-                        HuberaIdAccounts.saveSession(
-                            this,
-                            email,
-                            call.argument<String>("access_token").orEmpty(),
-                            call.argument<String>("refresh_token").orEmpty(),
-                            issuer = "jobs",
-                        )
+                        Thread {
+                            val row = HuberaIdAccounts.freshFromId(this, email)?.toMap()
+                            runOnUiThread { result.success(row) }
+                        }.start()
+                    }
+                    "saveSession" -> {
+                        // Le jeton Jobs ne remplace pas la session Hubera ID.
                         result.success(null)
                     }
                     else -> result.notImplemented()

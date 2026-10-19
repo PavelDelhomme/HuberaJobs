@@ -99,6 +99,33 @@ class AuthProvider with ChangeNotifier {
       return false;
     }
 
+    final email = _user?.email ?? '';
+    final idAccount = await HuberaIdSso.freshAccount(email);
+    if (idAccount != null &&
+        jobsCanUseIdAccess(
+          expectedEmail: email,
+          idEmail: idAccount.email,
+          idAccess: idAccount.accessToken,
+        )) {
+      try {
+        final response = await ApiService.loginWithHuberaSso(idAccount.accessToken);
+        if (response['success'] == true) {
+          _token = response['token'] as String?;
+          _refreshToken = response['refreshToken'] as String?;
+          _user = User.fromJson(response['user']);
+          _tokenStale = false;
+          CrashReporter.setToken(_token);
+          unawaited(_persistSession());
+          unawaited(MobileAnalyticsService.instance.updateAuthToken(_token));
+          notifyListeners();
+          debugPrint('[AUTH] JWT renouvelé via Hubera ID');
+          return true;
+        }
+      } catch (_) {
+        debugPrint('[AUTH] Hubera ID injoignable pour le renouvellement');
+      }
+    }
+
     final storedRefresh = _refreshToken ?? await ApiConfigStore.loadRefreshToken();
     if (storedRefresh != null && storedRefresh.isNotEmpty) {
       final result = await ApiService.refreshAccessToken(storedRefresh);

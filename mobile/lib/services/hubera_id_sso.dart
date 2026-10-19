@@ -23,6 +23,19 @@ class HuberaIdDeviceAccount {
   }
 }
 
+/// Le jeton Hubera ID ne sert que s’il est celui du compte déjà choisi.
+bool jobsCanUseIdAccess({
+  required String expectedEmail,
+  required String idEmail,
+  required String idAccess,
+}) {
+  final want = expectedEmail.trim().toLowerCase();
+  final got = idEmail.trim().toLowerCase();
+  if (want.isEmpty || idAccess.trim().isEmpty) return false;
+  if (got.isNotEmpty && got != want) return false;
+  return true;
+}
+
 class HuberaIdSso {
   HuberaIdSso._();
   static const _channel = MethodChannel('hubera_id_sso');
@@ -37,6 +50,24 @@ class HuberaIdSso {
           .toList();
     } on MissingPluginException {
       return const [];
+    }
+  }
+
+  static Future<HuberaIdDeviceAccount?> freshAccount(String email) async {
+    final want = email.trim().toLowerCase();
+    if (want.isEmpty) return null;
+    try {
+      final raw = await _channel.invokeMethod<dynamic>('freshAccount', {
+        'email': want,
+      });
+      if (raw is! Map) return null;
+      final account = HuberaIdDeviceAccount.fromMap(raw);
+      if (account.email != want || account.accessToken.isEmpty) return null;
+      return account;
+    } on MissingPluginException {
+      return null;
+    } on PlatformException {
+      return null;
     }
   }
 
