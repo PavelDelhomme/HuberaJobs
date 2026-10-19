@@ -283,7 +283,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           ],
         ),
       ),
-      body: Column(
+      body: shellUpdateBannerBody(
+        child: Column(
         children: [
           if (_showOfflineBanner(context))
             OfflineModeBanner(
@@ -304,6 +305,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
             ),
           ),
         ],
+      ),
       ),
       floatingActionButton: widget.isShellVisible && (_tabController.index == 0 || _tabController.index == 1 || _tabController.index == 2)
           ? shellFabPadding(context, child: _buildFab()!)

@@ -14,6 +14,7 @@ import 'package:jobbingtrack_mobile/services/offline_entity_cache.dart';
 import 'package:jobbingtrack_mobile/services/offline_list_loader.dart';
 import 'package:jobbingtrack_mobile/utils/datetime_display.dart';
 import 'package:jobbingtrack_mobile/utils/scroll_padding.dart';
+import 'package:jobbingtrack_mobile/utils/shell_layout.dart';
 import 'package:jobbingtrack_mobile/widgets/calendar_drawer.dart';
 import 'package:jobbingtrack_mobile/widgets/app_drawer_leading.dart';
 import 'package:jobbingtrack_mobile/widgets/drawer_back_scope.dart';
@@ -309,7 +310,8 @@ class _EventsScreenState extends State<EventsScreen> with RouteAware, ShellListR
       body: DrawerBackScope(
         scaffoldKey: _scaffoldKey,
         active: widget.isShellVisible,
-        child: _loading
+        child: shellUpdateBannerBody(
+          child: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? Center(
@@ -328,6 +330,7 @@ class _EventsScreenState extends State<EventsScreen> with RouteAware, ShellListR
                   onRefresh: () => _load(force: true),
                   child: _viewMode == CalendarViewMode.planner ? _buildPlanner() : _buildList(),
                 ),
+        ),
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:jobbingtrack_mobile/widgets/shell_app_bar_menu.dart';
 import 'package:jobbingtrack_mobile/widgets/app_drawer.dart';
 import 'package:jobbingtrack_mobile/widgets/app_drawer_leading.dart';
 import 'package:jobbingtrack_mobile/widgets/drawer_back_scope.dart';
+import 'package:jobbingtrack_mobile/utils/shell_layout.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isShellVisible;
@@ -80,7 +81,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: DrawerBackScope(
         scaffoldKey: _scaffoldKey,
         active: widget.isShellVisible,
-        child: SafeArea(
+        child: shellUpdateBannerBody(
+          child: SafeArea(
+          top: false,
           child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -145,7 +148,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
-      ),
+          ),
+        ),
       ),
     );
   }

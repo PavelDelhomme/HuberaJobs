@@ -111,7 +111,9 @@ class _HomeDashboardTabState extends State<HomeDashboardTab> {
       body: DrawerBackScope(
         scaffoldKey: _scaffoldKey,
         active: widget.isShellVisible,
-        child: SafeArea(
+        child: shellUpdateBannerBody(
+          child: SafeArea(
+          top: false,
           child: RefreshIndicator(
                   onRefresh: _loadData,
                   child: SingleChildScrollView(
@@ -170,6 +172,7 @@ class _HomeDashboardTabState extends State<HomeDashboardTab> {
                     ),
                   ),
                 ),
+          ),
         ),
       ),
       floatingActionButton: widget.isShellVisible

@@ -7,7 +7,6 @@ import 'package:jobbingtrack_mobile/screens/jobbing/applications/applications_sc
 import 'package:jobbingtrack_mobile/screens/jobbing/calendar/events_screen.dart';
 import 'package:jobbingtrack_mobile/screens/jobbing/dashboard/home_dashboard_tab.dart';
 import 'package:jobbingtrack_mobile/screens/jobbing/users/profile_screen.dart';
-import 'package:jobbingtrack_mobile/widgets/mobile_update_banner.dart';
 import 'package:jobbingtrack_mobile/widgets/shell_connectivity_banner.dart';
 
 /// Shell principal : 4 onglets (Accueil, Candidatures, Calendrier, Profil).
@@ -243,7 +242,6 @@ class _MainShellScreenState extends State<MainShellScreen> {
       child: Scaffold(
         body: Column(
           children: [
-            const MobileUpdateBanner(),
             const ShellConnectivityBanner(),
             Expanded(
               child: IndexedStack(
