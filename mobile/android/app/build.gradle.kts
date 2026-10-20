@@ -18,7 +18,11 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "cloud.hubera.jobs"
+        applicationId = if (project.hasProperty("legacyAppId")) {
+            "com.example.jobbingtrack_mobile"
+        } else {
+            "cloud.hubera.jobs"
+        }
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
