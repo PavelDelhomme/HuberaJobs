@@ -52,6 +52,7 @@ class InterviewProvider with ChangeNotifier {
     }
 
     _inFlight = () async {
+      final known = _interviews.map((i) => i.id).toSet();
       try {
         final result = await OfflineListLoader.load<Interview>(
           userId: userId,
@@ -60,7 +61,11 @@ class InterviewProvider with ChangeNotifier {
           fromJson: Interview.fromJson,
           toJson: (i) => i.toJson(),
         );
-        _interviews = result.items;
+        final freshIds = result.items.map((i) => i.id).toSet();
+        final added = _interviews.where(
+          (i) => i.id.isNotEmpty && !known.contains(i.id) && !freshIds.contains(i.id),
+        );
+        _interviews = [...added, ...result.items];
         _isOfflineData = result.fromCache;
         _lastLoadedAt = DateTime.now();
       } catch (e) {

@@ -201,8 +201,8 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           return ok ? auth.token : null;
         },
       ),
-      companyProvider.loadCompanies(token: token, userId: userId).catchError((_) {}),
-      contactProvider.loadContacts(token: token, userId: userId).catchError((_) {}),
+      companyProvider.loadCompanies(token: token, userId: userId, force: force).catchError((_) {}),
+      contactProvider.loadContacts(token: token, userId: userId, force: force).catchError((_) {}),
       interviewProvider.loadInterviews(token: token, userId: userId, force: force).catchError((_) {}),
       followUpProvider.loadFollowUps(token: token, userId: userId, force: force).catchError((_) {}),
       callProvider.loadCalls(token: token, userId: userId, force: force).catchError((_) {}),
@@ -324,7 +324,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           if (!mounted || created == null) return;
           final auth = Provider.of<AuthProvider>(context, listen: false);
           await Provider.of<CompanyProvider>(context, listen: false)
-              .loadCompanies(token: auth.token);
+              .loadCompanies(token: auth.token, force: true);
           if (mounted) setState(() {});
         },
         backgroundColor: Colors.purple[600],
@@ -338,7 +338,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
         onPressed: () async {
           final created = await showCreateContactSheet(context);
           if (created != null && mounted) {
-            await _loadAll();
+            await _loadAll(force: true);
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Contact créé')),
@@ -391,7 +391,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
       tooltip: 'Nouvelle candidature',
       onPressed: () async {
         final result = await ApplicationFormScreen.showCreateSheet(context);
-        if (result == true) _loadAll();
+        if (result == true) _loadAll(force: true);
       },
       backgroundColor: Colors.blue[600],
       child: const Icon(Icons.add),
@@ -481,7 +481,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
                                     return ApplicationCard(
                                       application: application,
                                       onTap: () => _openApplicationDetail(application),
-                                      onEdit: () => _openApplicationDetail(application),
+                                      onEdit: () => _editApplication(application),
                                       onArchive: () => _archiveApplication(application),
                                       onTrash: () => _trashApplication(application),
                                     );
@@ -584,6 +584,11 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
     );
   }
 
+  Future<void> _editApplication(Application application) async {
+    final result = await ApplicationFormScreen.showCreateSheet(context, application: application);
+    if (result == true) await _loadAll(force: true);
+  }
+
   Future<void> _openApplicationDetail(Application application) async {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => ApplicationDetailScreen(application: application)),
@@ -626,7 +631,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           onArchive: () async {
             final auth = Provider.of<AuthProvider>(context, listen: false);
             await ApiService.archiveCompany(c.id, token: auth.token);
-            await Provider.of<CompanyProvider>(context, listen: false).loadCompanies(token: auth.token);
+            await Provider.of<CompanyProvider>(context, listen: false).loadCompanies(token: auth.token, force: true);
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Entreprise archivée')));
             }
@@ -634,7 +639,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           onTrash: () async {
             final auth = Provider.of<AuthProvider>(context, listen: false);
             await ApiService.deleteCompany(c.id, token: auth.token);
-            await Provider.of<CompanyProvider>(context, listen: false).loadCompanies(token: auth.token);
+            await Provider.of<CompanyProvider>(context, listen: false).loadCompanies(token: auth.token, force: true);
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Entreprise mise à la corbeille')));
             }
@@ -675,7 +680,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
             FilledButton.icon(
               onPressed: () async {
                 final created = await showCreateContactSheet(context);
-                if (created != null && mounted) await _loadAll();
+                if (created != null && mounted) await _loadAll(force: true);
               },
               icon: const Icon(Icons.person_add_outlined),
               label: const Text('Nouveau contact'),
@@ -707,7 +712,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           onArchive: () async {
             final auth = Provider.of<AuthProvider>(context, listen: false);
             await ApiService.archiveContact(id, token: auth.token);
-            await _loadAll();
+            await _loadAll(force: true);
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contact archivé')));
             }
@@ -715,7 +720,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           onTrash: () async {
             final auth = Provider.of<AuthProvider>(context, listen: false);
             await ApiService.deleteContact(id, token: auth.token);
-            await _loadAll();
+            await _loadAll(force: true);
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Contact mis à la corbeille')));
             }
@@ -784,7 +789,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           onArchive: () async {
             final auth = Provider.of<AuthProvider>(context, listen: false);
             await ApiService.archiveInterview(i.id, token: auth.token);
-            await Provider.of<InterviewProvider>(context, listen: false).loadInterviews(token: auth.token);
+            await Provider.of<InterviewProvider>(context, listen: false).loadInterviews(token: auth.token, force: true);
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Entretien archivé')));
             }
@@ -792,7 +797,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           onTrash: () async {
             final auth = Provider.of<AuthProvider>(context, listen: false);
             await ApiService.deleteInterview(i.id, token: auth.token);
-            await Provider.of<InterviewProvider>(context, listen: false).loadInterviews(token: auth.token);
+            await Provider.of<InterviewProvider>(context, listen: false).loadInterviews(token: auth.token, force: true);
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Entretien mis à la corbeille')));
             }
@@ -840,7 +845,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
         if (pending.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text('À venir', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey[800])),
+            child: Text('À venir', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
           ),
           ...pending.map((f) => _relanceTile(f)),
           const SizedBox(height: 16),
@@ -848,7 +853,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
         if (completed.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text('Terminées', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey[800])),
+            child: Text('Terminées', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface)),
           ),
           ...completed.map((f) => _relanceTile(f)),
         ],
@@ -877,7 +882,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
       if (changed == true && mounted) {
         final auth = Provider.of<AuthProvider>(context, listen: false);
         await Provider.of<FollowUpProvider>(context, listen: false)
-            .loadFollowUps(token: auth.token);
+            .loadFollowUps(token: auth.token, force: true);
       }
     }
 
@@ -889,7 +894,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
       onArchive: () async {
         final auth = Provider.of<AuthProvider>(context, listen: false);
         await ApiService.archiveFollowUp(f.id, token: auth.token);
-        await Provider.of<FollowUpProvider>(context, listen: false).loadFollowUps(token: auth.token);
+        await Provider.of<FollowUpProvider>(context, listen: false).loadFollowUps(token: auth.token, force: true);
         if (mounted) {
           AppSnack.info('Relance archivée', context: context);
         }
@@ -1038,7 +1043,7 @@ class _ApplicationsScreenState extends State<ApplicationsScreen>
           ElevatedButton.icon(
             onPressed: () async {
               final result = await ApplicationFormScreen.showCreateSheet(context);
-              if (result == true) _loadAll();
+              if (result == true) _loadAll(force: true);
             },
             icon: const Icon(Icons.add),
             label: const Text('Créer ma première candidature'),

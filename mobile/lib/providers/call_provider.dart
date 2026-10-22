@@ -49,6 +49,7 @@ class CallProvider with ChangeNotifier {
     }
 
     _inFlight = () async {
+      final known = _calls.map((c) => c.id).toSet();
       try {
         final result = await OfflineListLoader.load<Call>(
           userId: userId,
@@ -57,7 +58,11 @@ class CallProvider with ChangeNotifier {
           fromJson: Call.fromJson,
           toJson: (c) => c.toJson(),
         );
-        _calls = result.items;
+        final freshIds = result.items.map((c) => c.id).toSet();
+        final added = _calls.where(
+          (c) => c.id.isNotEmpty && !known.contains(c.id) && !freshIds.contains(c.id),
+        );
+        _calls = [...added, ...result.items];
         _isOfflineData = result.fromCache;
         _lastLoadedAt = DateTime.now();
       } catch (e) {

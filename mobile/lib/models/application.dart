@@ -21,6 +21,14 @@ class Application {
   final String agencyName;
   final String? platformId;
   final String platformName;
+  final String jobUrl;
+  final String contractType;
+  final String? workMode;
+  final String applicationType;
+  final int? salaryMin;
+  final int? salaryMax;
+  final bool salaryNegotiable;
+  final bool statusEngineOptOut;
 
   const Application({
     required this.id,
@@ -42,6 +50,14 @@ class Application {
     this.agencyName = '',
     this.platformId,
     this.platformName = '',
+    this.jobUrl = '',
+    this.contractType = 'CDI',
+    this.workMode,
+    this.applicationType = 'OFFRE',
+    this.salaryMin,
+    this.salaryMax,
+    this.salaryNegotiable = false,
+    this.statusEngineOptOut = false,
   });
 
   bool get isInterim => agencyId != null && agencyId!.isNotEmpty;
@@ -104,7 +120,25 @@ class Application {
       agencyName: agencyName,
       platformId: platformId,
       platformName: platformName,
+      jobUrl: json['jobUrl']?.toString() ?? '',
+      contractType: (json['contractType']?.toString().trim().isNotEmpty ?? false)
+          ? json['contractType'].toString()
+          : 'CDI',
+      workMode: json['workMode']?.toString(),
+      applicationType: (json['applicationType']?.toString().trim().isNotEmpty ?? false)
+          ? json['applicationType'].toString()
+          : 'OFFRE',
+      salaryMin: _asInt(json['salaryMin']),
+      salaryMax: _asInt(json['salaryMax']),
+      salaryNegotiable: json['salaryNegotiable'] == true || json['salaryNegotiable'] == 'true',
+      statusEngineOptOut: json['statusEngineOptOut'] == true || json['statusEngineOptOut'] == 'true',
     );
+  }
+
+  static int? _asInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.round();
+    return int.tryParse('${value ?? ''}'.trim());
   }
 
   Map<String, dynamic> toJson() {
@@ -126,6 +160,14 @@ class Application {
       'updatedAt': updatedAt.toIso8601String(),
       if (agencyId != null) 'agencyId': agencyId,
       if (platformId != null) 'platformId': platformId,
+      if (jobUrl.isNotEmpty) 'jobUrl': jobUrl,
+      'contractType': contractType,
+      if (workMode != null && workMode!.isNotEmpty) 'workMode': workMode,
+      'applicationType': applicationType,
+      if (salaryMin != null) 'salaryMin': salaryMin,
+      if (salaryMax != null) 'salaryMax': salaryMax,
+      'salaryNegotiable': salaryNegotiable,
+      'statusEngineOptOut': statusEngineOptOut,
     };
   }
 }

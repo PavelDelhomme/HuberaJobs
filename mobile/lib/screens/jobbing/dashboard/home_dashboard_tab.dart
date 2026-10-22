@@ -151,7 +151,7 @@ class _HomeDashboardTabState extends State<HomeDashboardTab> {
                           ],
                           Text(
                             'Actions rapides',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey[800]),
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: context.cs.onSurface),
                           ),
                           const SizedBox(height: 16),
                           GridView.count(
@@ -332,7 +332,10 @@ class _HomeDashboardTabState extends State<HomeDashboardTab> {
           runSpacing: 8,
           children: statusCounts.entries.map((e) {
             return ActionChip(
-              label: Text('${applicationStatusLabel(e.key)} (${e.value})'),
+              label: Text(
+                '${applicationStatusLabel(e.key)} (${e.value})',
+                style: TextStyle(color: context.cs.onSurface),
+              ),
               onPressed: () => _openApps(tab: 0, status: e.key),
             );
           }).toList(),

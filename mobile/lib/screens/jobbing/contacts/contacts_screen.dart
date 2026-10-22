@@ -31,12 +31,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
-  Future<void> _load() async {
+  Future<void> _load({bool force = false}) async {
     setState(() => _loadError = null);
     final token = Provider.of<AuthProvider>(context, listen: false).token;
     try {
-      await Provider.of<CompanyProvider>(context, listen: false).loadCompanies(token: token);
-      await Provider.of<ContactProvider>(context, listen: false).loadContacts(token: token);
+      await Provider.of<CompanyProvider>(context, listen: false).loadCompanies(token: token, force: force);
+      await Provider.of<ContactProvider>(context, listen: false).loadContacts(token: token, force: force);
     } catch (e) {
       if (mounted) {
         setState(() => _loadError = e.toString().replaceAll('Exception: ', ''));
@@ -95,7 +95,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
         n += 1;
       }
       if (!mounted) return;
-      await _load();
+      await _load(force: true);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$n contact(s) Hubera importé(s).')),
       );
@@ -110,7 +110,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Future<void> _createContact() async {
     final created = await showCreateContactSheet(context);
     if (created != null && mounted) {
-      await _load();
+      await _load(force: true);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Contact créé')),
       );

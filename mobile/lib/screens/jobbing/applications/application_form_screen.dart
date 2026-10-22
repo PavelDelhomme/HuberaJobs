@@ -33,24 +33,23 @@ class ApplicationFormScreen extends StatefulWidget {
     this.scrollController,
   });
 
-  /// Ouvre le formulaire de création en bottom sheet (sans drawer).
-  static Future<bool?> showCreateSheet(BuildContext context) {
+  /// Même formulaire pour créer ou modifier, en feuille scrollable.
+  static Future<bool?> showCreateSheet(BuildContext context, {Application? application}) {
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
       builder: (ctx) {
+        final media = MediaQuery.of(ctx);
+        final available = media.size.height - media.viewInsets.bottom;
         return Padding(
-          padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
-          child: DraggableScrollableSheet(
-            expand: false,
-            initialChildSize: 0.92,
-            minChildSize: 0.55,
-            maxChildSize: 0.96,
-            builder: (_, scroll) => ApplicationFormScreen(
+          padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
+          child: SizedBox(
+            height: available * 0.92,
+            child: ApplicationFormScreen(
+              application: application,
               modalMode: true,
-              scrollController: scroll,
             ),
           ),
         );
@@ -109,6 +108,15 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
       _platformId = a.platformId;
       _applicationDate = a.appliedDate.toLocal();
       if (a.status.isNotEmpty) _status = a.status;
+      _jobUrl.text = a.jobUrl;
+      if (_contractTypes.contains(a.contractType)) _contractType = a.contractType;
+      final mode = a.workMode?.trim();
+      _workMode = (mode == null || mode.isEmpty) ? null : mode;
+      if (_applicationTypes.contains(a.applicationType)) _applicationType = a.applicationType;
+      if (a.salaryMin != null) _salaryMin.text = '${a.salaryMin}';
+      if (a.salaryMax != null) _salaryMax.text = '${a.salaryMax}';
+      _salaryNegotiable = a.salaryNegotiable;
+      _autoStatusUpdate = !a.statusEngineOptOut;
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadCompanies();
@@ -235,17 +243,24 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
       final token = auth.token;
       final payload = _buildPayload();
       final appProvider = Provider.of<ApplicationProvider>(context, listen: false);
+      final companyProvider = Provider.of<CompanyProvider>(context, listen: false);
       if (widget.application == null) {
         final created = await ApiService.createApplicationFromPayload(payload, token: token);
         if (!mounted) return;
         appProvider.upsertLocal(created);
-        // Soft refresh en arrière-plan (pas bloquant).
+        if (created.company.id.isNotEmpty) {
+          companyProvider.upsertLocal(created.company);
+        }
         unawaitedSoftRefresh(token);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Candidature créée')));
         Navigator.of(context).pop(true);
       } else {
-        await ApiService.updateApplicationFromPayload(widget.application!.id, payload, token: token);
+        final updated = await ApiService.updateApplicationFromPayload(widget.application!.id, payload, token: token);
         if (!mounted) return;
+        appProvider.upsertLocal(updated);
+        if (updated.company.id.isNotEmpty) {
+          companyProvider.upsertLocal(updated.company);
+        }
         unawaitedSoftRefresh(token);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Candidature mise à jour')));
         Navigator.of(context).pop(true);
@@ -616,7 +631,11 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
               )
             : const Icon(Icons.check),
-        label: Text(_saving ? 'Enregistrement…' : 'Créer la candidature'),
+        label: Text(
+          _saving
+              ? 'Enregistrement…'
+              : (widget.application == null ? 'Créer la candidature' : 'Enregistrer'),
+        ),
       ),
       const SizedBox(height: 8),
     ];
@@ -625,14 +644,14 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.application != null;
-    final isModalCreate = widget.modalMode && !isEdit;
-
+    final fields = _buildModalCreateFields();
     if (widget.modalMode) {
       return Form(
         key: _formKey,
         child: ListView(
           controller: widget.scrollController,
-          padding: scrollSafePadding(context, top: 0, extraBottom: 24),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: scrollSafePadding(context, top: 8, extraBottom: 32),
           children: [
             Row(
               children: [
@@ -649,27 +668,28 @@ class _ApplicationFormScreenState extends State<ApplicationFormScreen> {
                 ),
               ],
             ),
-            if (isModalCreate)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  'Entreprise, poste, date et statut en haut — options plus bas.',
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                'Entreprise, poste, date et statut en haut — le reste se fait défiler.',
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13),
               ),
-            ...(isModalCreate ? _buildModalCreateFields() : _buildFormFields()),
+            ),
+            ...fields,
           ],
         ),
       );
     }
 
-    final bottomPad = scrollSafePadding(context, top: 0);
+    final bottomPad = scrollSafePadding(context, top: 0, extraBottom: 32);
     final form = Form(
       key: _formKey,
       child: ListView(
         controller: widget.scrollController,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: bottomPad,
-        children: _buildFormFields(),
+        children: fields,
       ),
     );
 

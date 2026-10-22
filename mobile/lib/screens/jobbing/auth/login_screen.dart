@@ -395,7 +395,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 88,
                     height: 88,
                     fit: BoxFit.cover,
-                    semanticLabel: 'Logo JobbingTrack',
+                    semanticLabel: 'Logo Hubera Jobs',
                   ),
                 ),
 
@@ -403,11 +403,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Titre
                 Text(
-                  'JobbingTrack',
+                  'Hubera Jobs',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue[800],
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
 
@@ -417,13 +417,29 @@ class _LoginScreenState extends State<LoginScreen> {
                   'Suivez vos candidatures facilement',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey[600],
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
 
                 const SizedBox(height: 48),
 
                 if (_huberaAccounts.isNotEmpty) ...[
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Hubera ID — facultatif',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Un compte est déjà sur cet appareil. Vous pouvez continuer avec, ou saisir e-mail et mot de passe plus bas.',
+                    style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 12),
                   for (final acc in _huberaAccounts)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -437,8 +453,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   const SizedBox(height: 8),
-                  Text('Ou connexion manuelle', style: TextStyle(color: Colors.grey.shade600)),
-                  const SizedBox(height: 16),
                 ],
 
                 if (_savedAccountEmail != null && _biometricAvailable && !_showFullLoginForm) ...[
@@ -520,28 +534,64 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 16),
                 ],
 
-                // Formulaire de connexion (toujours visible — mot de passe si empreinte indisponible)
-                Material(
-                  color: Colors.white,
+                // E-mail + mot de passe, toujours proposé. Hubera ID reste au-dessus, sans être exigé.
+                Builder(
+                  builder: (context) {
+                    final isDark = Theme.of(context).brightness == Brightness.dark;
+                    final cardColor = isDark ? const Color(0xFF2A2140) : const Color(0xFFF3E8FF);
+                    final fieldFill = isDark ? const Color(0xFF1E1830) : const Color(0xFFFFFFFF);
+                    final fieldText = isDark ? const Color(0xFFF5F3FF) : const Color(0xFF1E1B4B);
+                    final buttonBg = isDark ? const Color(0xFFC4B5FD) : const Color(0xFF5B21B6);
+                    final buttonFg = isDark ? const Color(0xFF1E1B4B) : const Color(0xFFFFFFFF);
+                    final fieldStyle = TextStyle(color: fieldText, fontSize: 16);
+                    final labelStyle = TextStyle(color: fieldText, fontSize: 14);
+                    InputDecoration fieldDecoration({
+                      required String label,
+                      required String hint,
+                      required Widget icon,
+                      Widget? suffix,
+                    }) {
+                      return InputDecoration(
+                        labelText: label,
+                        hintText: hint,
+                        labelStyle: labelStyle,
+                        floatingLabelStyle: labelStyle,
+                        hintStyle: labelStyle.copyWith(color: fieldText.withValues(alpha: 0.7)),
+                        prefixIcon: icon,
+                        suffixIcon: suffix,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        filled: true,
+                        fillColor: fieldFill,
+                      );
+                    }
+
+                    return Material(
+                  key: const Key('manual-login-card'),
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(16),
                   elevation: 2,
-                  shadowColor: Colors.black.withOpacity(0.1),
+                  shadowColor: Colors.black.withValues(alpha: 0.1),
                   child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
-                      // Champ email
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Connexion e-mail',
+                          style: TextStyle(fontWeight: FontWeight.w700, color: fieldText),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       TextField(
+                        key: const Key('manual-login-email'),
                         controller: _emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'redacted@example.invalid',
-                          prefixIcon: const Icon(Icons.email),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
+                        style: fieldStyle,
+                        cursorColor: fieldText,
+                        decoration: fieldDecoration(
+                          label: 'Email',
+                          hint: 'redacted@example.invalid',
+                          icon: Icon(Icons.email, color: fieldText),
                         ),
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
@@ -549,22 +599,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Champ mot de passe
                       TextField(
+                        key: const Key('manual-login-password'),
                         controller: _passwordController,
-                        decoration: InputDecoration(
-                          labelText: 'Mot de passe',
-                          hintText: '••••••••',
-                          prefixIcon: const Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                        style: fieldStyle,
+                        cursorColor: fieldText,
+                        decoration: fieldDecoration(
+                          label: 'Mot de passe',
+                          hint: '••••••••',
+                          icon: Icon(Icons.lock, color: fieldText),
+                          suffix: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              color: fieldText,
+                            ),
                             onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[50],
                         ),
                         obscureText: _obscurePassword,
                         textInputAction: TextInputAction.done,
@@ -589,8 +639,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       CheckboxListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Garder la connexion'),
-                        subtitle: const Text('Rester connecté sur cet appareil'),
+                        title: Text('Garder la connexion', style: TextStyle(color: fieldText)),
+                        subtitle: Text(
+                          'Rester connecté sur cet appareil',
+                          style: TextStyle(color: fieldText.withValues(alpha: 0.85), fontSize: 12),
+                        ),
                         value: _keepLoggedIn,
                         onChanged: (v) => setState(() {
                           _keepLoggedIn = v ?? true;
@@ -619,10 +672,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
+                          key: const Key('manual-login-submit'),
                           onPressed: _isLoading ? null : _login,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue[600],
-                            foregroundColor: Colors.white,
+                            backgroundColor: buttonBg,
+                            foregroundColor: buttonFg,
+                            disabledBackgroundColor: buttonBg.withValues(alpha: 0.5),
+                            disabledForegroundColor: buttonFg.withValues(alpha: 0.7),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -648,6 +704,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   ),
+                );
+                  },
                 ),
 
                 const SizedBox(height: 32),
@@ -756,7 +814,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Pas encore de compte ? ',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     GestureDetector(
@@ -764,11 +822,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.of(context).pushNamed('/register');
                       },
                       child: Text(
-                        'S\'inscrire',
+                        'Créer un compte',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.blue[600],
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),

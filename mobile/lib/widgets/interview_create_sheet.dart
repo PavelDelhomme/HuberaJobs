@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:jobbingtrack_mobile/models/application.dart';
 import 'package:jobbingtrack_mobile/providers/application_provider.dart';
 import 'package:jobbingtrack_mobile/providers/auth_provider.dart';
+import 'package:jobbingtrack_mobile/providers/contact_provider.dart';
 import 'package:jobbingtrack_mobile/providers/interview_provider.dart';
 import 'package:jobbingtrack_mobile/screens/jobbing/interviews/interview_detail_screen.dart';
 import 'package:jobbingtrack_mobile/services/api_service.dart';
@@ -292,6 +293,9 @@ class _InterviewCreateSheetBodyState extends State<_InterviewCreateSheetBody> {
                               companyId: app.company.id,
                               token: token,
                             );
+                            if (context.mounted) {
+                              Provider.of<ContactProvider>(context, listen: false).upsertContact(created);
+                            }
                             return created;
                           },
                         );

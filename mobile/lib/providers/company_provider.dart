@@ -49,6 +49,7 @@ class CompanyProvider with ChangeNotifier {
     }
 
     _inFlight = () async {
+      final known = _companies.map((c) => c.id).toSet();
       try {
         final result = await OfflineListLoader.load<Company>(
           userId: userId,
@@ -57,7 +58,11 @@ class CompanyProvider with ChangeNotifier {
           fromJson: Company.fromJson,
           toJson: (c) => c.toJson(),
         );
-        _companies = result.items;
+        final freshIds = result.items.map((c) => c.id).toSet();
+        final added = _companies.where(
+          (c) => c.id.isNotEmpty && !known.contains(c.id) && !freshIds.contains(c.id),
+        );
+        _companies = [...added, ...result.items];
         _isOfflineData = result.fromCache;
         _lastLoadedAt = DateTime.now();
       } catch (e) {
@@ -98,6 +103,14 @@ class CompanyProvider with ChangeNotifier {
     _lastLoadedAt = DateTime.now();
     notifyListeners();
     return created;
+  }
+
+  void upsertLocal(Company company) {
+    if (company.id.isEmpty) return;
+    _companies.removeWhere((c) => c.id == company.id);
+    _companies.insert(0, company);
+    _lastLoadedAt = DateTime.now();
+    notifyListeners();
   }
 
   void clearUserCache() {

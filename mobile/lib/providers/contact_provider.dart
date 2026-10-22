@@ -36,13 +36,25 @@ class ContactProvider with ChangeNotifier {
     }
 
     _inFlight = () async {
+      final known = _contacts
+          .map((c) => c is Map ? c['id']?.toString() : null)
+          .whereType<String>()
+          .toSet();
       try {
         final result = await OfflineListLoader.loadMaps(
           userId: userId,
           cacheKey: OfflineEntityKeys.contacts,
           fetch: () => ApiService.getContacts(token: token),
         );
-        _contacts = result.items;
+        final freshIds = result.items
+            .map((c) => c['id']?.toString())
+            .whereType<String>()
+            .toSet();
+        final added = _contacts.where((c) {
+          final id = c is Map ? c['id']?.toString() : null;
+          return id != null && id.isNotEmpty && !known.contains(id) && !freshIds.contains(id);
+        });
+        _contacts = [...added, ...result.items];
         _isOfflineData = result.fromCache;
         _lastLoadedAt = DateTime.now();
       } catch (e) {

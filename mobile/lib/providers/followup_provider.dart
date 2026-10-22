@@ -94,6 +94,7 @@ class FollowUpProvider with ChangeNotifier {
     }
 
     _inFlight = () async {
+      final known = _followUps.map((f) => f.id).toSet();
       try {
         final result = await OfflineListLoader.load<FollowUp>(
           userId: userId,
@@ -102,7 +103,11 @@ class FollowUpProvider with ChangeNotifier {
           fromJson: FollowUp.fromJson,
           toJson: (f) => f.toJson(),
         );
-        _followUps = result.items;
+        final freshIds = result.items.map((f) => f.id).toSet();
+        final added = _followUps.where(
+          (f) => f.id.isNotEmpty && !known.contains(f.id) && !freshIds.contains(f.id),
+        );
+        _followUps = [...added, ...result.items];
         _isOfflineData = result.fromCache;
         _lastLoadedAt = DateTime.now();
       } catch (e) {

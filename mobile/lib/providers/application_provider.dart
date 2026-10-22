@@ -58,6 +58,7 @@ class ApplicationProvider with ChangeNotifier {
     }
 
     _inFlight = () async {
+      final known = _applications.map((a) => a.id).toSet();
       try {
         final result = await OfflineListLoader.load<Application>(
           userId: userId,
@@ -66,7 +67,7 @@ class ApplicationProvider with ChangeNotifier {
           fromJson: Application.fromJson,
           toJson: (app) => app.toJson(),
         );
-        _applications = result.items;
+        _applications = _keepLocalAdds(known, result.items);
         _isOfflineData = result.fromCache;
         _isLoading = false;
         _lastLoadedAt = DateTime.now();
@@ -86,7 +87,7 @@ class ApplicationProvider with ChangeNotifier {
                 fromJson: Application.fromJson,
                 toJson: (app) => app.toJson(),
               );
-              _applications = result.items;
+              _applications = _keepLocalAdds(known, result.items);
               _isOfflineData = result.fromCache;
               _isLoading = false;
               _lastLoadedAt = DateTime.now();
@@ -112,6 +113,14 @@ class ApplicationProvider with ChangeNotifier {
     }();
 
     return _inFlight!;
+  }
+
+  List<Application> _keepLocalAdds(Set<String> known, List<Application> fresh) {
+    final freshIds = fresh.map((a) => a.id).toSet();
+    final added = _applications.where(
+      (a) => a.id.isNotEmpty && !known.contains(a.id) && !freshIds.contains(a.id),
+    );
+    return [...added, ...fresh];
   }
 
   /// Insère / remplace localement sans attendre un rechargement réseau.
@@ -166,6 +175,16 @@ class ApplicationProvider with ChangeNotifier {
         updatedAt: app.updatedAt,
         agencyId: app.agencyId,
         agencyName: app.agencyName,
+        platformId: app.platformId,
+        platformName: app.platformName,
+        jobUrl: app.jobUrl,
+        contractType: app.contractType,
+        workMode: app.workMode,
+        applicationType: app.applicationType,
+        salaryMin: app.salaryMin,
+        salaryMax: app.salaryMax,
+        salaryNegotiable: app.salaryNegotiable,
+        statusEngineOptOut: app.statusEngineOptOut,
       );
     }).toList();
     if (changed) _notifySafely();

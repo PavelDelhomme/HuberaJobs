@@ -125,10 +125,32 @@ class _ListItemSwipeActionsState extends State<ListItemSwipeActions> with Single
             ),
             Transform.translate(
               offset: Offset(_dragExtent, 0),
-              child: Material(
-                key: widget.itemKey,
-                color: Colors.white,
-                child: widget.child,
+              child: Builder(
+                builder: (context) {
+                  final isDark = Theme.of(context).brightness == Brightness.dark;
+                  final bg = isDark ? const Color(0xFF342652) : const Color(0xFFF3E8FF);
+                  final fg = isDark ? const Color(0xFFF5F3FF) : const Color(0xFF1E1B4B);
+                  final sub = isDark ? const Color(0xFFDDD6FE) : const Color(0xFF5B21B6);
+                  final theme = Theme.of(context);
+                  return Material(
+                    key: widget.itemKey,
+                    color: bg,
+                    child: Theme(
+                      data: theme.copyWith(
+                        colorScheme: theme.colorScheme.copyWith(
+                          onSurface: fg,
+                          onSurfaceVariant: sub,
+                        ),
+                        listTileTheme: ListTileThemeData(
+                          textColor: fg,
+                          iconColor: fg,
+                        ),
+                        iconTheme: IconThemeData(color: fg),
+                      ),
+                      child: widget.child,
+                    ),
+                  );
+                },
               ),
             ),
           ],

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:jobbingtrack_mobile/models/company.dart';
 import 'package:jobbingtrack_mobile/providers/auth_provider.dart';
 import 'package:jobbingtrack_mobile/providers/company_provider.dart';
+import 'package:jobbingtrack_mobile/providers/contact_provider.dart';
 import 'package:jobbingtrack_mobile/services/api_service.dart';
 import 'package:jobbingtrack_mobile/utils/contact_name_utils.dart';
 import 'package:jobbingtrack_mobile/utils/scroll_padding.dart';
@@ -100,7 +101,12 @@ class _ContactCreateSheetBodyState extends State<_ContactCreateSheetBody> {
         companyId: companyId,
         token: token,
       );
-      if (mounted) Navigator.pop(context, created);
+      created.putIfAbsent('firstName', () => capitalizePersonName(fn));
+      created.putIfAbsent('lastName', () => capitalizePersonName(ln));
+      if (mounted) {
+        Provider.of<ContactProvider>(context, listen: false).upsertContact(created);
+        Navigator.pop(context, created);
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

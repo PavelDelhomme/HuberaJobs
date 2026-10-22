@@ -291,8 +291,9 @@ class _ApplicationDetailScreenState extends State<ApplicationDetailScreen> {
           IconButton(
             tooltip: 'Modifier',
             onPressed: () async {
-              final result = await Navigator.of(context).push<bool>(
-                MaterialPageRoute(builder: (_) => ApplicationFormScreen(application: app)),
+              final result = await ApplicationFormScreen.showCreateSheet(
+                context,
+                application: app,
               );
               if (result == true && mounted) _load();
             },

@@ -35,6 +35,9 @@ class SimplePieChart extends StatelessWidget {
     }
 
     final total = entries.fold<double>(0, (s, e) => s + e.value);
+    final cs = Theme.of(context).colorScheme;
+    final legend = TextStyle(fontSize: 12, color: cs.onSurface);
+    final valueStyle = TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cs.onSurface);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -51,7 +54,7 @@ class SimplePieChart extends StatelessWidget {
                   entries: entries,
                   total: total,
                   colors: _palette,
-                  holeColor: Theme.of(context).colorScheme.surface,
+                  holeColor: cs.surfaceContainer,
                 ),
               ),
             ),
@@ -68,8 +71,8 @@ class SimplePieChart extends StatelessWidget {
                       children: [
                         Container(width: 10, height: 10, decoration: BoxDecoration(color: _palette[i % _palette.length], shape: BoxShape.circle)),
                         const SizedBox(width: 6),
-                        Expanded(child: Text(e.key, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis)),
-                        Text('${e.value.toInt()} (${pct.toStringAsFixed(0)}%)', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                        Expanded(child: Text(e.key, style: legend, overflow: TextOverflow.ellipsis)),
+                        Text('${e.value.toInt()} (${pct.toStringAsFixed(0)}%)', style: valueStyle),
                       ],
                     ),
                   );
