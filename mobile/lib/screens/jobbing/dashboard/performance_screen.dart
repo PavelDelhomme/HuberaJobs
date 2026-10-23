@@ -213,7 +213,7 @@ class _PerformanceScreenState extends State<PerformanceScreen> with SingleTicker
             ),
           ),
           const AdminSectionTitle(
-            title: 'Conteneurs JobbingTrack',
+            title: 'Conteneurs Hubera Jobs',
             subtitle: 'CPU/RAM moyens du projet sur l\'hôte',
           ),
           Padding(

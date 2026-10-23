@@ -288,8 +288,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           title: const Text('Contacts du téléphone'),
                           subtitle: Text(
                             _localPhoneContactsCount > 0
-                                ? '$_localPhoneContactsCount contact(s) sur cet appareil · proposés au picker (création JobbingTrack manuelle)'
-                                : 'Import local uniquement — pas de création auto dans JobbingTrack',
+                                ? '$_localPhoneContactsCount contact(s) sur cet appareil · proposés au picker (création Hubera Jobs manuelle)'
+                                : 'Import local uniquement — pas de création auto dans Hubera Jobs',
                           ),
                           trailing: _phoneSyncing
                               ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
@@ -407,7 +407,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             const Divider(height: 1),
                             ListTile(
                               leading: const Icon(Icons.info_outline),
-                              title: const Text('Version installée'),
+                              title: const Text('Hubera Jobs'),
                               subtitle: Text('$_appVersionLine · API ${ApiService.baseUrl}'),
                             ),
                           ],
@@ -471,7 +471,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ? 'Aucun contact téléphone (permission ou carnet vide)'
                 : '$count contact(s) prêt(s) sur cet appareil — '
                     'ils seront proposés quand vous ajoutez un contact à une candidature '
-                    '(pas créés automatiquement dans JobbingTrack).',
+                    '(pas créés automatiquement dans Hubera Jobs).',
           ),
           duration: const Duration(seconds: 6),
         ),

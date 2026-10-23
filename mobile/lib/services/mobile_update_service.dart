@@ -215,7 +215,7 @@ class MobileUpdateService {
       await openAppSettings();
       throw Exception(
         'Permission d’installer des apps refusée. '
-        'Autorisez JobbingTrack dans Paramètres → Installer des apps inconnues, puis réessayez.',
+        'Autorisez Hubera Jobs dans Paramètres → Installer des apps inconnues, puis réessayez.',
       );
     }
 

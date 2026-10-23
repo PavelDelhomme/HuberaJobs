@@ -4,7 +4,7 @@ import 'package:jobbingtrack_mobile/providers/auth_provider.dart';
 import 'package:jobbingtrack_mobile/services/biometric_credential_store.dart';
 import 'package:jobbingtrack_mobile/utils/post_auth_navigation.dart';
 
-/// Saisie du mot de passe JobbingTrack (écran plein, pas une popup).
+/// Saisie du mot de passe Hubera Jobs (écran plein, pas une popup).
 class BiometricPasswordUnlockScreen extends StatefulWidget {
   const BiometricPasswordUnlockScreen({super.key});
 
@@ -77,7 +77,7 @@ class _BiometricPasswordUnlockScreenState extends State<BiometricPasswordUnlockS
                 Icon(Icons.lock_outline, size: 56, color: Colors.blue.shade700),
                 const SizedBox(height: 16),
                 Text(
-                  'Mot de passe JobbingTrack',
+                  'Mot de passe Hubera Jobs',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),

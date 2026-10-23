@@ -54,10 +54,10 @@ class _BiometricUnlockScreenState extends State<BiometricUnlockScreen> {
       _localAuthAvailable = supported;
       _biometricLabel = BiometricAuthService.describeBiometrics(enrolled);
       if (!supported) {
-        _error = 'Authentification locale indisponible sur cet appareil — utilisez votre mot de passe JobbingTrack';
+        _error = 'Authentification locale indisponible sur cet appareil — utilisez votre mot de passe Hubera Jobs';
       } else if (enrolled.isEmpty) {
         _error =
-            'Aucune empreinte enregistrée sur cet appareil — le code PIN Android ou votre mot de passe JobbingTrack fonctionneront';
+            'Aucune empreinte enregistrée sur cet appareil — le code PIN Android ou votre mot de passe Hubera Jobs fonctionneront';
       }
     });
   }
@@ -70,7 +70,7 @@ class _BiometricUnlockScreenState extends State<BiometricUnlockScreen> {
     });
 
     final result = await BiometricAuthService.authenticate(
-      reason: 'Confirmez votre identité pour ouvrir JobbingTrack',
+      reason: 'Confirmez votre identité pour ouvrir Hubera Jobs',
     );
     if (!mounted) return;
 
@@ -91,7 +91,7 @@ class _BiometricUnlockScreenState extends State<BiometricUnlockScreen> {
     }
     setState(() {
       _unlocking = false;
-      _error = 'Session expirée — saisissez votre mot de passe JobbingTrack';
+      _error = 'Session expirée — saisissez votre mot de passe Hubera Jobs';
     });
   }
 
@@ -160,7 +160,7 @@ class _BiometricUnlockScreenState extends State<BiometricUnlockScreen> {
                       child: OutlinedButton.icon(
                         onPressed: _unlockWithPassword,
                         icon: const Icon(Icons.lock_outline),
-                        label: const Text('Mot de passe JobbingTrack'),
+                        label: const Text('Mot de passe Hubera Jobs'),
                       ),
                     ),
                   ],

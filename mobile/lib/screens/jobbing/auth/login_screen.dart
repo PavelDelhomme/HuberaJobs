@@ -193,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final bio = await BiometricAuthService.authenticate(
       reason: auto
-          ? 'Connectez-vous à JobbingTrack'
+          ? 'Connectez-vous à Hubera Jobs'
           : 'Confirmez votre identité pour vous connecter',
     );
     if (!bio.success) {

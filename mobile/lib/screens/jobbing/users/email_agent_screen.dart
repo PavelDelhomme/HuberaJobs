@@ -746,7 +746,7 @@ class _EmailAgentScreenState extends State<EmailAgentScreen> {
         title: Text(label, style: TextStyle(fontWeight: FontWeight.w600, color: color)),
         subtitle: Text(
           '${status.mailboxes.length} boîte(s) IMAP lue(s) · '
-          'compte JobbingTrack : ${Provider.of<AuthProvider>(context).user?.email ?? ''}\n'
+          'compte Hubera Jobs : ${Provider.of<AuthProvider>(context).user?.email ?? ''}\n'
           'Le digest et la connexion utilisent ce compte ; les emails viennent des boîtes ci-dessous.',
           style: TextStyle(fontSize: 12, color: Colors.grey.shade700, height: 1.35),
         ),

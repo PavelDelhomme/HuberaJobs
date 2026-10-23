@@ -12,7 +12,7 @@ void main() {
   testWidgets('L’application monte puis affiche l’écran de connexion', (WidgetTester tester) async {
     await tester.pumpWidget(const JobbingTrackMobileApp());
     await tester.pump();
-    expect(find.text('JobbingTrack'), findsWidgets);
+    expect(find.text('Hubera Jobs'), findsWidgets);
 
     // Le splash enchaîne vers /login (async) — avancer le temps sans bloquer indéfiniment.
     for (var i = 0; i < 40; i++) {

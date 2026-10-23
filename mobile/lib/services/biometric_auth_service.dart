@@ -64,7 +64,7 @@ class BiometricAuthService {
       case LocalAuthExceptionCode.timeout:
         return 'Délai dépassé — réessayez';
       case LocalAuthExceptionCode.noBiometricsEnrolled:
-        return 'Aucune empreinte enregistrée — utilisez votre mot de passe JobbingTrack';
+        return 'Aucune empreinte enregistrée — utilisez votre mot de passe Hubera Jobs';
       case LocalAuthExceptionCode.noCredentialsSet:
         return 'Configurez un code ou une empreinte dans les paramètres Android';
       case LocalAuthExceptionCode.temporaryLockout:
@@ -73,14 +73,14 @@ class BiometricAuthService {
       case LocalAuthExceptionCode.uiUnavailable:
         return 'Interface biométrique indisponible — réessayez';
       case LocalAuthExceptionCode.userRequestedFallback:
-        return 'Utilisez votre mot de passe JobbingTrack ci-dessous';
+        return 'Utilisez votre mot de passe Hubera Jobs ci-dessous';
       default:
         return e.description ?? 'Authentification impossible (${e.code.name})';
     }
   }
 
   static Future<({bool success, String? errorMessage})> authenticate({
-    String reason = 'Déverrouillez JobbingTrack',
+    String reason = 'Déverrouillez Hubera Jobs',
     bool biometricOnly = false,
   }) async {
     if (kDebugMode && await ApiConfigStore.loadTestAutomationSkipBiometric()) {

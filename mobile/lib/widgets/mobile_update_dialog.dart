@@ -111,7 +111,7 @@ Future<bool> showMobileUpdateDialog(
                   const SizedBox(height: 8),
                   Text(
                     Platform.isAndroid
-                        ? 'Téléchargement depuis le serveur JobbingTrack. '
+                        ? 'Téléchargement depuis le serveur Hubera Jobs. '
                             'Votre session est conservée (même application, pas de désinstallation).'
                         : 'Données et session conservées.',
                     style: TextStyle(fontSize: 13, color: Colors.grey[700]),

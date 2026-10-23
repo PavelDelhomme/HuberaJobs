@@ -46,7 +46,7 @@ class _PermissionsGateScreenState extends State<PermissionsGateScreen> {
     final perm = await Permission.notification.status;
     setState(() {
       _status = perm.isPermanentlyDenied
-          ? 'Autorisation refusée définitivement. Ouvrez les paramètres Android → Applications → JobbingTrack → Notifications.'
+          ? 'Autorisation refusée définitivement. Ouvrez les paramètres Android → Applications → Hubera Jobs → Notifications.'
           : 'Les notifications sont obligatoires pour les relances et rappels sur votre téléphone.';
     });
   }
@@ -72,7 +72,7 @@ class _PermissionsGateScreenState extends State<PermissionsGateScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'JobbingTrack a besoin d\'envoyer des alertes système (relances, entretiens, rappels). '
+                  'Hubera Jobs a besoin d\'envoyer des alertes système (relances, entretiens, rappels). '
                   'Sans cette autorisation, l\'application ne peut pas fonctionner correctement.\n\n'
                   'Les notifications dans l\'app (cloche) restent disponibles, mais vous ne recevrez pas '
                   'd\'alerte sur l\'écran de verrouillage.',

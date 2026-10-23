@@ -257,6 +257,19 @@ class _AppDrawerState extends State<AppDrawer> {
             },
           ),
 
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(
+              'Hubera Jobs',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+          ),
+
           // Version de l'app (semver + build — voir docs/mobile/VERSIONNEMENT.md)
           if (_appVersion != null)
             Padding(
