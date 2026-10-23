@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:jobbingtrack_mobile/navigation/shell_navigation.dart';
 import 'package:jobbingtrack_mobile/providers/auth_provider.dart';
+import 'package:jobbingtrack_mobile/services/hubera_id_sso.dart';
 import 'package:jobbingtrack_mobile/providers/notification_provider.dart';
 import 'package:jobbingtrack_mobile/services/global_search.dart';
 import 'package:jobbingtrack_mobile/utils/auth_logout.dart';
@@ -90,6 +91,75 @@ class ShellAppBarMenu extends StatelessWidget {
 }
 
 /// Actions AppBar shell : action contextuelle optionnelle + menu ⋮ (notifications dedans).
+class _AccountMenuButton extends StatefulWidget {
+  final String letter;
+
+  const _AccountMenuButton({required this.letter});
+
+  @override
+  State<_AccountMenuButton> createState() => _AccountMenuButtonState();
+}
+
+class _AccountMenuButtonState extends State<_AccountMenuButton> {
+  Future<void> _open() async {
+    final rows = await HuberaIdSso.listAccounts();
+    if (!mounted) return;
+    final seen = <String>{};
+    final emails = <String>[];
+    void push(String raw) {
+      final mail = raw.trim();
+      if (mail.isEmpty) return;
+      if (!seen.add(mail.toLowerCase())) return;
+      emails.add(mail);
+    }
+
+    for (final row in rows) {
+      push(row.email);
+    }
+    push(context.read<AuthProvider>().user?.email ?? '');
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Comptes'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final mail in emails)
+                ListTile(
+                  title: Text(mail, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  subtitle: const Text('Compte Hubera ID'),
+                  onTap: () => Navigator.of(ctx).pop('account:$mail'),
+                ),
+              ListTile(
+                title: const Text('Paramètres'),
+                onTap: () => Navigator.of(ctx).pop('settings'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (!mounted || selected != 'settings') return;
+    ShellNavigation.navigateFromDrawer(context, '/profile');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: 'Compte',
+      onPressed: _open,
+      icon: CircleAvatar(
+        radius: 14,
+        backgroundColor: const Color(0xFF0E4D5C).withValues(alpha: 0.15),
+        foregroundColor: const Color(0xFF0E4D5C),
+        child: Text(widget.letter, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
+      ),
+    );
+  }
+}
+
 class ShellAppBarActions extends StatelessWidget {
   final List<Widget> leadingActions;
 
@@ -105,16 +175,7 @@ class ShellAppBarActions extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         ...leadingActions,
-        IconButton(
-          tooltip: 'Compte',
-          onPressed: () => ShellNavigation.navigateFromDrawer(context, '/profile'),
-          icon: CircleAvatar(
-            radius: 14,
-            backgroundColor: const Color(0xFF0E4D5C).withValues(alpha: 0.15),
-            foregroundColor: const Color(0xFF0E4D5C),
-            child: Text(letter, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13)),
-          ),
-        ),
+        _AccountMenuButton(letter: letter),
         const ShellAppBarMenu(),
       ],
     );
