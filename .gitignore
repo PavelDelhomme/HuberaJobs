@@ -213,3 +213,12 @@ data/archives/security-logs/
 .android-sdk/
 .env.mobile-emulator
 tools/apk/*.apk
+
+# Build OTA lab artifacts
+.ota-out/
+**/.ota-out/
+
+__pycache__/
+**/__pycache__/
+
+*.torrent
